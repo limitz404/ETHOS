@@ -1,1 +1,0 @@
-The following is how to commit and sync with code.
