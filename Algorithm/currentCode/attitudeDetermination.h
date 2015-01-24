@@ -11,10 +11,10 @@
 #ifndef ATTITUDE_DETERMINATION_H
 #define ATTITUDE_DETERMINATION_H
 
-#include "edgeDetection.h"
 #include "dataStructures.h"
 #include <string.h>
 #include <chrono>
+#include "edgeDetection.h"
 
 using namespace cv;
 using namespace std;
@@ -30,13 +30,11 @@ const float fLength = atof(getenv("FLENGTH"));
 const int visualizer = atoi(getenv("VISUALIZER"));
 const string imPath = getenv("IMAGEPATH");
 const int latency = atoi(getenv("LATENCY"));
-
+const int lookForward = atoi(getenv("LOOKFORWARD"));
 // End Global Variables
 
 void determineAttitude()
 {    
-    cout << "DetermineAttitude" << endl;
-
     if (visualizer == 1){
         namedWindow( "Display window", WINDOW_AUTOSIZE );// Create a window for display.
     }
@@ -62,16 +60,16 @@ void determineAttitude()
     vector<vector<float> > edgesMod;
     
     if (side == "top") {
-        edges = topEdges(image, threshold, searchRange);
+        edges = topEdges(image, threshold, searchRange, lookForward);
     }
     else if (side == "bottom") {
-        edges = bottomEdges(image, threshold, searchRange);
+        edges = bottomEdges(image, threshold, searchRange, lookForward);
     }
     else if (side == "left") {
-        edges = leftEdges(image, threshold, searchRange);
+        edges = leftEdges(image, threshold, searchRange, lookForward);
     }
     else if (side == "right") {
-        edges = rightEdges(image, threshold, searchRange);
+        edges = rightEdges(image, threshold, searchRange, lookForward);
     }
     else {
         cout << "Did not recognize start side value" << endl;
@@ -81,7 +79,7 @@ void determineAttitude()
     
     lstcircle lstSqCircle;
     
-    if (subPix == 0) {
+    if (subPix == 1) {
         vector<vector<float> > modEdges = performSubpixelEstimation(image,  edges, threshold, side);
         lstSqCircle = circularLeastSquares(modEdges, image.cols, image.rows);
     }
@@ -108,7 +106,7 @@ void determineAttitude()
         // Calculate elapsed time
         float duration = std::chrono::duration_cast<std::chrono::microseconds>(tEnd - tStart).count();
         
-        cout << 1000000/duration << " Hz" << endl;
+        cout << "\n\nExecution Speed = " << 1000000/duration << " Hz" << endl;
     }
     if (visualizer == 1){
         // Show edges
@@ -118,7 +116,6 @@ void determineAttitude()
     }
     
     // Output effective rate in Hz
-    cout << imPath << endl;
     cout << "pitch = " << pitchAngle << "º" << endl;
     cout << "roll = " << rollAngle << "º" << endl;
     cout << "corrected pitch = " << pitchCor << "º" << endl;
