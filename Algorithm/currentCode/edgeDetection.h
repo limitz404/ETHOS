@@ -88,12 +88,21 @@ vector<vector<float> > topEdges(Mat image, float threshold, int searchRange, int
     float intensity;
     float intensity2;
     int startLoc = 0;
+    int jTemp;
     
     // Scan through columns to find edge pixels
     for (int i=0; i<image.cols; i++){
-        for (int j=startLoc; j<image.rows - lookForward; j++){
+        for (int j=startLoc; j<image.rows; j++){
+        		jTemp = j;
             intensity = image.at<uchar>(j, i);
-            intensity2 = image.at<uchar>(j - lookForward,i);
+            
+            if (j < image.rows - lookForward){
+            		intensity2 = image.at<uchar>(j - lookForward, i);
+            }
+            else{
+            		intensity2 = intensity;
+            }
+            
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(j);
@@ -107,6 +116,10 @@ vector<vector<float> > topEdges(Mat image, float threshold, int searchRange, int
                 
                 break;
             }
+        }
+        
+        if (jTemp == image.rows - 1){
+        		startLoc = 0;
         }
     }
     return edges;
@@ -131,12 +144,21 @@ vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, 
     float intensity;
     float intensity2;
     int startLoc = 0;
+    int jTemp;
     
     // Scan through columns to find edge pixels
     for (int i=0; i<image.cols; i++){
-        for (int j=startLoc; j<image.rows - lookForward; j++){
+        for (int j=startLoc; j<image.rows; j++){
+        		jTemp = j;
             intensity = image.at<uchar>(image.rows - j - 1,i);
-            intensity2 = image.at<uchar>(image.rows - j - 1 - lookForward,i);
+            
+            if (j < image.rows - lookForward){
+            		intensity2 = image.at<uchar>(image.rows - j - 1 - lookForward, i);
+            }
+            else{
+            		intensity2 = intensity;
+            }
+            
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(image.rows - j - 1);
@@ -150,6 +172,10 @@ vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, 
                 
                 break;
             }
+        }
+        
+        if (jTemp == image.rows - 1){
+        		startLoc = 0;
         }
     }
     return edges;
@@ -176,12 +202,21 @@ vector<vector<float> > leftEdges(Mat image, float threshold, int searchRange, in
     float intensity;
     float intensity2;
     int startLoc = 0;
+    int iTemp;
     
     // Scan through rows to find edge pixels
     for (int j=0; j<image.rows; j++){
-        for (int i=startLoc; i<image.cols - lookForward; i++){
+        for (int i=startLoc; i<image.cols; i++){
+        		iTemp = i;
             intensity = image.at<uchar>(j, i);
-            intensity2 = image.at<uchar>(j, i + lookForward);
+            
+            if (i < image.cols - lookForward){
+            		intensity2 = image.at<uchar>(j, i + lookForward);
+            }
+            else{
+            		intensity2 = intensity;
+            }
+            
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(j);
@@ -195,6 +230,10 @@ vector<vector<float> > leftEdges(Mat image, float threshold, int searchRange, in
                 
                 break;
             }
+        }
+        
+        if (iTemp == image.cols - 1){
+        		startLoc = 0;
         }
     }
     return edges;
@@ -219,12 +258,21 @@ vector<vector<float> > rightEdges(Mat image, float threshold, int searchRange, i
     float intensity;
     float intensity2;
     int startLoc = 0;
+    int iTemp;
     
     // Scan through rows to find edge pixels
     for (int j=0; j<image.rows; j++){
-        for (int i=startLoc; i<image.cols - lookForward; i++){
+        for (int i=startLoc; i<image.cols; i++){
+        		iTemp = i;
             intensity = image.at<uchar>(j, image.cols - i - 1);
-            intensity2 = image.at<uchar>(j, image.cols - i - 1 - lookForward);
+            
+            if (i < image.cols - lookForward){
+            		intensity2 = image.at<uchar>(j, image.cols - i - 1 - lookForward);
+            }
+            else{
+            		intensity2 = intensity;
+            }
+            
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(image.cols - i -1);
                 edges[1].push_back(j);
@@ -238,6 +286,10 @@ vector<vector<float> > rightEdges(Mat image, float threshold, int searchRange, i
                 
                 break;
             }
+        }
+        
+        if (iTemp == image.cols - 1){
+        		startLoc = 0;
         }
     }
     
@@ -346,10 +398,10 @@ pair<string, float> startSide(Mat image, int bufferSize)
         }
     }
     
-    topMean = topMean/image.cols/bufferSize;
-    bottomMean = bottomMean/image.cols/bufferSize;
-    leftMean = leftMean/image.rows/bufferSize;
-    rightMean = rightMean/image.rows/bufferSize;
+    topMean = topMean/(image.cols*bufferSize);
+    bottomMean = bottomMean/(image.cols*bufferSize);
+    leftMean = leftMean/(image.rows*bufferSize);
+    rightMean = rightMean/(image.rows*bufferSize);
     
     //     vector<float> sideArray = {topMean, bottomMean, leftMean, rightMean};
     vector<float> sideArray;
@@ -569,6 +621,7 @@ float calculatePitch2(pair<float, float> center, float R, float fLength, float p
     //
     //  To Do:      currently outputting in degrees. Should eventually change
     //              this to radians
+    
     float h = (sqrt(center.first*center.first + center.second*center.second) - R)*pixelPitch;
     float pitchAngle = atan2(h, fLength)*180/PI;
     return pitchAngle;
@@ -576,18 +629,44 @@ float calculatePitch2(pair<float, float> center, float R, float fLength, float p
 
 float reducePitchError(float pitch, coefficients coeff)
 {
+		//  Inputs:     pitch      =   a float containing the raw pitch angle in degrees
+    //
+    //  Outputs:    pitchCor   =   corrected pitch angle in degrees
+    //
+    //  Purpose:    to correct the pitch angle
+    //
+    //  To Do:      Not currently working well. Debug
+    
     float pitchCor = pitch*coeff.Pa + coeff.Pb;
     return pitchCor;
 }
 
 float reduceRollError(float roll, coefficients coeff)
 {
+		//  Inputs:     roll      =   a float containing the raw roll angle in degrees
+    //
+    //  Outputs:    rollCor   =   corrected roll angle in degrees
+    //
+    //  Purpose:    to correct the pitch angle
+    //
+    //  To Do:      Not currently working well. Debug
+    
     float rollCor = roll*coeff.Ra + coeff.Rb;
     return rollCor;
 }
 
 coefficients getCoefficients(float height)
 {
+		//  Inputs:     height    =   a float containing height of the sensor
+    //
+    //  Outputs:    coeffs    =   a coefficient structure containing the
+    //														error correction polynomial coeffiients
+    //
+    //  Purpose:    to correct determine the correction coefficients for a
+    //							given altitude
+    //
+    //  To Do:      Not currently working well. Debug
+    
     coefficients coeffs;
     
     coeffs.Pa = 0.000016047790803*height + 1.000845684214970;
