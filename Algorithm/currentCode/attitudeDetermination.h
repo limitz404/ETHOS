@@ -41,7 +41,6 @@ void determineAttitude()
     // Start timer
     chrono::high_resolution_clock::time_point tStart = chrono::high_resolution_clock::now();
     
-    
     coefficients coeff = getCoefficients(altitude);
     
     Mat image;
@@ -53,48 +52,42 @@ void determineAttitude()
     }
     
     pair<string, float> output = startSide(image, buffer);
-    string side = output.first;
     float threshold = output.second*thresholdFactor;
     
     vector<vector<float> > edges;
     vector<vector<float> > edgesMod;
     
-    if (side == "top") {
+    if (output.first == "top") {
         edges = topEdges(image, threshold, searchRange, lookForward);
     }
-    else if (side == "bottom") {
+    else if (output.first == "bottom") {
         edges = bottomEdges(image, threshold, searchRange, lookForward);
     }
-    else if (side == "left") {
+    else if (output.first == "left") {
         edges = leftEdges(image, threshold, searchRange, lookForward);
     }
-    else if (side == "right") {
+    else if (output.first == "right") {
         edges = rightEdges(image, threshold, searchRange, lookForward);
     }
     else {
         cout << "Did not recognize start side value" << endl;
     }
     
-    // START STRUCT
-    
     lstcircle lstSqCircle;
     
+    // Perform subpixel estimation if desired
     if (subPix == 1) {
-        vector<vector<float> > modEdges = performSubpixelEstimation(image,  edges, threshold, side);
+        vector<vector<float> > modEdges = performSubpixelEstimation(image,  edges, threshold, output.first);
         lstSqCircle = circularLeastSquares(modEdges, image.cols, image.rows);
     }
     else {
         lstSqCircle = circularLeastSquares(edges, image.cols, image.rows);
     }
     
-    float xc = lstSqCircle.xc;
-    float yc = lstSqCircle.yc;
-    float r = lstSqCircle.r;
-    
-    pair<float, float> center = make_pair(xc, yc);
+    pair<float, float> center = make_pair(lstSqCircle.xc, lstSqCircle.yc);
     
     float rollAngle = calculateRoll(center);
-    float pitchAngle = calculatePitch2(center,r,fLength,pixelPitch);
+    float pitchAngle = calculatePitch2(center,lstSqCircle.r,fLength,pixelPitch);
     float rollCor = reduceRollError(rollAngle, coeff);
     float pitchCor = reducePitchError(pitchAngle, coeff);
     
@@ -106,6 +99,7 @@ void determineAttitude()
         // Calculate elapsed time
         float duration = std::chrono::duration_cast<std::chrono::microseconds>(tEnd - tStart).count();
         
+        // Output effective rate in Hz
         cout << "\n\nExecution Speed = " << 1000000/duration << " Hz" << endl;
     }
     if (visualizer == 1){
@@ -115,13 +109,10 @@ void determineAttitude()
         waitKey(0);
     }
     
-    // Output effective rate in Hz
+    // Output pitch and roll calculations for debugging
     cout << "pitch = " << pitchAngle << "º" << endl;
     cout << "roll = " << rollAngle << "º" << endl;
     cout << "corrected pitch = " << pitchCor << "º" << endl;
     cout << "corrected roll = " << rollCor << "º\n\n" << endl;
-
 }
-
-
 #endif

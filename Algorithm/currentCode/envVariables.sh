@@ -20,5 +20,5 @@ export LOOKFORWARD=5
 
 export VISUALIZER=1
 export LATENCY=1
-#export IMAGEPATH=/Users/taylordean/Documents/TestImageBackup/Images/horizon-earth-space-stars-left.jpg
+export IMAGEPATH=/Users/taylordean/Documents/TestImageBackup/Images/horizon-earth-space-stars.jpg
 #export IMAGEPATH=/Users/taylordean/ETHOS_Git/Algorithm/testImages/350r5.png
