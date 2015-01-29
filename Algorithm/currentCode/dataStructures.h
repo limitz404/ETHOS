@@ -20,8 +20,10 @@ struct lstcircle {
 struct coefficients {
     float Ra;
     float Rb;
+    float Rc;
     float Pa;
     float Pb;
+    float Pc;
 };
 
 #endif

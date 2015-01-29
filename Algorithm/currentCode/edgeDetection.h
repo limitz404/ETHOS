@@ -470,9 +470,6 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     //  Purpose:    to determine the coordinates of the best fit circle for the
     //              edges in the transformed reference frame
     
-    Mat a, b, c;
-    a = Mat::zeros(3,3,CV_64F);
-    b = Mat::zeros(3,1,CV_64F);
     float xi = 0;
     float yi = 0;
     float xbar = 0;
@@ -491,8 +488,10 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     float Svvv = 0;
     float Svuu = 0;
     float r;
+        
+		int upperBound = edges[0].size() - 1;
     
-    for (int i=0;i<edges[0].size();i++) {
+    for (int i=0;i<upperBound;i++) {
         // Need to add 0.5 if edges[0].size() is even
         if (edges[0].size() % 2) {
             xi = xi + edges[0][i] - width*0.5;
@@ -506,7 +505,7 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     xbar = xi/edges[0].size();
     ybar = yi/edges[1].size();
     
-    for (int i=0;i<edges[0].size();i++) {
+    for (int i=0;i<upperBound;i++) {
         // Need to add 0.5 if edges[0].size() is even
         if (edges[0].size() % 2) {
             xi = edges[0][i] - width*0.5;
@@ -534,7 +533,7 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     xc = uc + xbar;
     yc = vc + ybar;
     
-    r = sqrt(uc*uc + vc*vc + (Suu + Svv)/edges[0].size());
+    r = sqrt(uc*uc + vc*vc + (Suu + Svv)/upperBound);
     
     lstcircle c1;
     c1.r = r;
@@ -542,7 +541,6 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     c1.yc = yc;
     
     return c1;
-//    return make_tuple(xc, yc, r);
 }
 
 float subpixelEst(float int1, float intensity2, float threshold)
@@ -637,7 +635,7 @@ float reducePitchError(float pitch, coefficients coeff)
     //
     //  To Do:      Not currently working well. Debug
     
-    float pitchCor = pitch*coeff.Pa + coeff.Pb;
+    float pitchCor = pitch*pitch*coeff.Pa + pitch*coeff.Pb + coeff.Pc;
     return pitchCor;
 }
 
@@ -651,7 +649,7 @@ float reduceRollError(float roll, coefficients coeff)
     //
     //  To Do:      Not currently working well. Debug
     
-    float rollCor = roll*coeff.Ra + coeff.Rb;
+    float rollCor = roll*roll*coeff.Ra + roll*coeff.Rb + coeff.Rc;
     return rollCor;
 }
 
@@ -669,10 +667,12 @@ coefficients getCoefficients(float height)
     
     coefficients coeffs;
     
-    coeffs.Pa = 0.000016047790803*height + 1.000845684214970;
-    coeffs.Pb = -0.000260519527204*height + 0.004200564089650;
-    coeffs.Ra = -0.000166626504366*height + 1.056448694368721;
-    coeffs.Rb = -0.000321027334648*height + 0.093219958268063;
+    coeffs.Pa = -0.000000934515451134*height + -0.000100992634531045;
+    coeffs.Pb = 0.000018835792135*height + 1.229688828883790;
+    coeffs.Pc = -0.000139687646810*height + -2.263872473634770;
+    coeffs.Ra = 0.000000344122178389*height + -0.000174147348325762;
+    coeffs.Rb = -0.000120468449106*height + 1.050698358643706;
+    coeffs.Rc = -0.000030000373588*height + 0.018288177661476;
     
     return coeffs;
 }

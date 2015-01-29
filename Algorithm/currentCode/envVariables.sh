@@ -11,14 +11,14 @@
 
 export THRESHOLDFACTOR=0.25
 export BUFFER=5
-export SUBPIX=0
 export ALTITUDE=350
-export PIXELPITCH=0.0000289614
+export PIXELPITCH=0.0000469
 export SEARCHRANGE=10
-export FLENGTH=0.0038
+export FLENGTH=0.0075
 export LOOKFORWARD=5
 
-export VISUALIZER=1
+export VISUALIZER=0
 export LATENCY=1
-export IMAGEPATH=/Users/taylordean/Documents/TestImageBackup/Images/horizon-earth-space-stars.jpg
-#export IMAGEPATH=/Users/taylordean/ETHOS_Git/Algorithm/testImages/350r5.png
+export CALIBRATE=1
+export SUBPIX=0
+export IMAGEPATH=../testImages/300p10.png
