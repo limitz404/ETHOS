@@ -3,7 +3,7 @@ clear all;
 clc;
 
 %% Image locations
-folder = '/Users/taylordean/Desktop/Pics';
+folder = '/Users/taylordean/Desktop/newPics';
 outFolder = '/Users/taylordean/ETHOS_Git/Algorithm/testImages';
 
 %% Find all images

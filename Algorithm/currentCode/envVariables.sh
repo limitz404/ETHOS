@@ -11,7 +11,7 @@
 
 export THRESHOLDFACTOR=0.25
 export BUFFER=5
-export ALTITUDE=350
+export ALTITUDE=750
 export PIXELPITCH=0.0000469
 export SEARCHRANGE=10
 export FLENGTH=0.0075
@@ -19,6 +19,6 @@ export LOOKFORWARD=5
 
 export VISUALIZER=0
 export LATENCY=1
-export CALIBRATE=1
+export CALIBRATE=0
 export SUBPIX=0
-export IMAGEPATH=../testImages/300p10.png
+export IMAGEPATH=../testImages/750r0p18.png
