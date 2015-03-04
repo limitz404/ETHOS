@@ -1,0 +1,68 @@
+/*
+* pru dts file ETHOS-GPIO-00A0.dts
+*/
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    /* identification */
+    part-number = "ETHOS-GPIO";
+    version = "00A0";
+
+    exclusive-use =
+        "P8.27",    /* pru1: pr1_pru1_pru_r31_8  */
+        "P8.28",    /* pru1: pr1_pru1_pru_r31_10 */
+        "P8.29",    /* pru1: pr1_pru1_pru_r31_9  */
+        "P8.30",    /* pru1: pr1_pru1_pru_r31_11 */
+        "P8.39",    /* pru1: pr1_pru1_pru_r31_6  */
+        "P8.40",    /* pru1: pr1_pru1_pru_r31_7  */
+        "P8.41",    /* pru1: pr1_pru1_pru_r31_4  */
+        "P8.42",    /* pru1: pr1_pru1_pru_r31_5  */
+        "P8.43",    /* pru1: pr1_pru1_pru_r31_2  */
+        "P8.44",    /* pru1: pr1_pru1_pru_r31_3  */
+        "P8.45",    /* pru1: pr1_pru1_pru_r31_0  */
+        "P8.46";    /* pru1: pr1_pru1_pru_r31_1  */
+
+    fragment@0 {
+        target = <&am33xx_pinmux>;
+        __overlay__ {
+            ethosgpio: pinmux_ethos{
+                pinctrl-single,pins = <
+                    0x0ec 0x36  /* lcd_ac_bias_en.pr1_pru1_r31_11, MODE6 | INPUT | PRU */
+                    0x0e8 0x36  /* lcd_pclk.pr1_pru1_pru_r31_10, MODE6 | INPUT | PRU */
+                    0x0e0 0x36  /* lcd_vsync.pr1_pru1_pru_r31_8, MODE6 | INPUT | PRU */
+                    0x0e4 0x36  /* lcd_hsync.pr1_pru1_pru_r31_9, MODE6 | INPUT | PRU */
+                    0x0b8 0x36  /* lcd_data6.pr1_pru1_pru_r31_6, MODE6 | INPUT | PRU */
+                    0x0bc 0x36  /* lcd_data7.pr1_pru1_pru_r31_7, MODE6 | INPUT | PRU */
+                    0x0b0 0x36  /* lcd_data4.pr1_pru1_pru_r31_4, MODE6 | INPUT | PRU */
+                    0x0b4 0x36  /* lcd_data5.pr1_pru1_pru_r31_5, MODE6 | INPUT | PRU */
+                    0x0a8 0x36  /* lcd_data2.pr1_pru1_pru_r31_2, MODE6 | INPUT | PRU */
+                    0x0ac 0x36  /* lcd_data3.pr1_pru1_pru_r31_3, MODE6 | INPUT | PRU */
+                    0x0a0 0x36  /* lcd_data0.pr1_pru1_pru_r31_0, MODE6 | INPUT | PRU */
+                    0x0a4 0x36  /* lcd_data1.pr1_pru1_pru_r31_1, MODE6 | INPUT | PRU */
+                >;
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&ocp>;
+        __overlay__ {
+            test_helper: helper {
+                compatible = "bone-pinmux-helper";
+                pinctrl-names = "default";
+                pinctrl-0 = <&ethosgpio>;
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@2{
+        target = <&pruss>;
+        __overlay__ {
+            status = "okay";
+        };
+    };
+};
