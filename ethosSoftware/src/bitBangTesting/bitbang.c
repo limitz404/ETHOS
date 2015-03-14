@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <prussdrv.h>
 #include <pruss_intc_mapping.h>
+#include "bitbang.h"
 
 /*****************************************************************************
 * Local Macro Declarations                                                   *
@@ -47,10 +48,8 @@ static unsigned int *pruDataMem_int;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-int main (void)
+int doBitBang(void)
 {
-    printf("\nLet's Bitbang! Frame %u\n",frame);
-
     unsigned int ret;
     tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 
@@ -72,9 +71,8 @@ int main (void)
     dramInitialization();
 
     /* Execute PRU code */
-    prussdrv_exec_program(PRU_NUM, "./bitBang.bin");
+    prussdrv_exec_program ( PRU_NUM, "./bitBang.bin");
 
-    //printf("Beginning data acquisition...\n");
     unsigned int ack;
     int line = 0;
     int regblock;
@@ -98,6 +96,17 @@ int main (void)
     /* Disable PRU and close memory mapping*/
     prussdrv_pru_disable(PRU_NUM);
     prussdrv_exit();
+
+    /* Saving data... */
+    FILE *fid = fopen("file.txt","w");
+
+    int col;
+    for (line = 0; line < NUM_ROWS; line++){
+        for (col = 0; col < NUM_COLS; col++){
+            fprintf(fid, "%u\t", frameData[line][col] & 0xff);
+        }
+        fprintf(fid,"\n");
+    }
 
     return(0);
 }
