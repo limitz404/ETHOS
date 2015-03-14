@@ -8,52 +8,47 @@
 # NOTES: THIS FILE MUST BE RUN FROM WITHIN A DIRECORY WITH REQUIRED FILES
 ##########################################################################################
 
-
-echo "Copying files to /root/..."
-cp -r * /root/
-
-echo "Setting permissions..."
-#cd /root/
-chmod -R 777 /root/
+/bin/echo "Setting permissions..."
+/bin/chmod -R 777 /root/
 
 export CROSS_COMPILE=
 
-echo "Compiling interface..."
-cd /root/am335x_pru_package-master/pru_sw/app_loader/interface
-make clean
-make
+/bin/echo "Compiling interface..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/interface
+/usr/bin/make clean
+/usr/bin/make
 
-echo "Copying pasm to pasm_linuxintel..."
-cd /root/am335x_pru_package-master/pru_sw/utils
-mv pasm pasm_linuxintel
+/bin/echo "Copying pasm to pasm_linuxintel..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils
+/bin/mv pasm pasm_linuxintel
 
-echo "Running linuxbuild..."
-cd /root/am335x_pru_package-master/pru_sw/utils/pasm_source
+/bin/echo "Running linuxbuild..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils/pasm_source
 source ./linuxbuild
 
-#echo "Compiling example_apps..."
-#cd /root/am335x_pru_package-master/pru_sw/example_apps
-#make clean
-#make
+/bin/echo "Copying library files..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/lib
+/bin/cp * /usr/lib/
 
-echo "Copying library files..."
-cd /root/am335x_pru_package-master/pru_sw/app_loader/lib
-cp * /usr/lib
+/bin/echo "Copying header files..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/include
+/bin/cp * /usr/include/
 
-echo "Copying header files..."
-cd /root/am335x_pru_package-master/pru_sw/app_loader/include
-cp * /usr/include
+/bin/echo "Copying pasm..."
+cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils/
+/bin/cp pasm /usr/bin/
 
-echo "Copying pasm..."
-cd /root/am335x_pru_package-master/pru_sw/utils/
-cp pasm /usr/bin
+/bin/echo "Copying device tree..."
+/bin/cp /root/ethosSoftware/requiredFiles/ETHOS-GPIO-00A0.dts /lib/firmware/
 
-echo "Copying device tree..."
-cp ETHOS-GPIO-00A0.dts /lib/firmware
-
-echo "Converting device tree file..."
+/bin/echo "Converting device tree file..."
 cd /lib/firmware/
-dtc -@ -O dtb -o ETHOS-GPIO-00A0.dtbo ETHOS-GPIO-00A0.dts
+/usr/bin/dtc -@ -O dtb -o ETHOS-GPIO-00A0.dtbo ETHOS-GPIO-00A0.dts
 
-echo "DONE!"
-echo "Reboot, disable HDMI, reboot, source enablePRU.sh, and recompile code!"
+/bin/echo "Turning off HDMI..."
+/bin/cp /root/ethosSoftware/requiredFiles/uEnv.txt /boot/uboot/uEnv.txt
+
+/bin/echo "Making ETHOS software..."
+
+/bin/echo "DONE!"
+/bin/echo "Reboot, source enablePRU.sh, run code!"

@@ -21,4 +21,4 @@ export VISUALIZER=0
 export LATENCY=1
 export CALIBRATE=0
 export SUBPIX=0
-export IMAGEPATH=../testImages/250r10p10.png
+export IMAGEPATH=../requiredFiles/testImages/250r10p10.png
