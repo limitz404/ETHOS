@@ -6,17 +6,13 @@
 //  Copyright (c) 2014 Taylor Dean. All rights reserved.
 //
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <math.h>
 #include "dataStructures.h"
 #include "edgeDetection.h"
+#include "common.h"
 
-using namespace cv;
 using namespace std;
-
-#define PI 3.141592653589793238462643383279502884197
 
 // EDGE DETECTION HAPPENS HERE
 // Keep in mind that the image is stored in a matrix, therefore the coordinates
@@ -48,7 +44,7 @@ using namespace std;
 
 // BODY OF FILE
 
-vector<vector<float> > topEdges(Mat image, float threshold, int searchRange, int lookForward)
+vector<vector<int> > topEdges(int image[][NUMCOLS], float threshold, int searchRange, int lookForward)
 {
     //  Inputs:     image       =   m x n matrix containing pixel intensities
     //              threshold   =   the 'edge' intensity value
@@ -60,26 +56,26 @@ vector<vector<float> > topEdges(Mat image, float threshold, int searchRange, int
     //              through the columns
     
     // Allocate a 2d vector to contain the edge pixel locations
-    vector<vector<float> > edges;
-    vector<float> row;
+    vector<vector<int> > edges;
+    vector<int> row;
     edges.push_back(row);
     edges.push_back(row);
-    float intensity;
-    float intensity2;
+    int intensity;
+    int intensity2;
     int startLoc = 0;
     int jTemp;
     
     // Scan through columns to find edge pixels
-    for (int i=0; i<image.cols; i++){
-        for (int j=startLoc; j<image.rows; j++){
-        		jTemp = j;
-            intensity = image.at<uchar>(j, i);
+    for (int i=0; i<NUM_COLS; i++){
+        for (int j=startLoc; j<NUM_ROWS; j++){
+            jTemp = j;
+            intensity = image[j][i];
             
-            if (j < image.rows - lookForward){
-            		intensity2 = image.at<uchar>(j - lookForward, i);
+            if (j < NUM_ROWS - lookForward){
+                    intensity2 = image[j - lookForward][i];
             }
             else{
-            		intensity2 = intensity;
+                    intensity2 = intensity;
             }
             
             if (intensity >= threshold && intensity2 >= threshold){
@@ -97,14 +93,14 @@ vector<vector<float> > topEdges(Mat image, float threshold, int searchRange, int
             }
         }
         
-        if (jTemp == image.rows - 1){
-        		startLoc = 0;
+        if (jTemp == NUM_ROWS - 1){
+                startLoc = 0;
         }
     }
     return edges;
 }
 
-vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, int lookForward)
+vector<vector<int> > bottomEdges(int image[][NUMCOLS], float threshold, int searchRange, int lookForward)
 {
     //  Inputs:     image       =   m x n matrix containing pixel intensities
     //              threshold   =   the 'edge' intensity value
@@ -116,31 +112,31 @@ vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, 
     //              up through the columns.
     
     // Allocate a 2d vector to contain the edge pixel locations
-    vector<vector<float> > edges;
-    vector<float> row;
+    vector<vector<int> > edges;
+    vector<int> row;
     edges.push_back(row);
     edges.push_back(row);
-    float intensity;
-    float intensity2;
+    int intensity;
+    int intensity2;
     int startLoc = 0;
     int jTemp;
     
     // Scan through columns to find edge pixels
-    for (int i=0; i<image.cols; i++){
-        for (int j=startLoc; j<image.rows; j++){
-        		jTemp = j;
-            intensity = image.at<uchar>(image.rows - j - 1,i);
+    for (int i=0; i<NUM_COLS; i++){
+        for (int j=startLoc; j<NUM_ROWS; j++){
+            jTemp = j;
+            intensity = image[NUM_ROWS - j - 1][i];
             
-            if (j < image.rows - lookForward){
-            		intensity2 = image.at<uchar>(image.rows - j - 1 - lookForward, i);
+            if (j < NUM_ROWS - lookForward){
+                    intensity2 = image[NUM_ROWS - j - 1 - lookForward][i];
             }
             else{
-            		intensity2 = intensity;
+                    intensity2 = intensity;
             }
             
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
-                edges[1].push_back(image.rows - j - 1);
+                edges[1].push_back(NUM_ROWS - j - 1);
                 
                 if (j > searchRange){
                     startLoc = j - searchRange;
@@ -153,8 +149,8 @@ vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, 
             }
         }
         
-        if (jTemp == image.rows - 1){
-        		startLoc = 0;
+        if (jTemp == NUM_ROWS - 1){
+                startLoc = 0;
         }
     }
     return edges;
@@ -162,7 +158,7 @@ vector<vector<float> > bottomEdges(Mat image, float threshold, int searchRange, 
 
 // Detect edges starting from the left of the image, moving right through the
 // rows
-vector<vector<float> > leftEdges(Mat image, float threshold, int searchRange, int lookForward)
+vector<vector<int> > leftEdges(int image[][NUMCOLS], float threshold, int searchRange, int lookForward)
 {
     //  Inputs:     image       =   m x n matrix containing pixel intensities
     //              threshold   =   the 'edge' intensity value
@@ -174,26 +170,26 @@ vector<vector<float> > leftEdges(Mat image, float threshold, int searchRange, in
     //              right through the rows
     
     // Allocate a 2d vector to contain the edge pixel locations
-    vector<vector<float> > edges;
-    vector<float> row;
+    vector<vector<int> > edges;
+    vector<int> row;
     edges.push_back(row);
     edges.push_back(row);
-    float intensity;
-    float intensity2;
+    int intensity;
+    int intensity2;
     int startLoc = 0;
     int iTemp;
     
     // Scan through rows to find edge pixels
-    for (int j=0; j<image.rows; j++){
-        for (int i=startLoc; i<image.cols; i++){
-        		iTemp = i;
-            intensity = image.at<uchar>(j, i);
+    for (int j=0; j<NUM_ROWS; j++){
+        for (int i=startLoc; i<NUM_COLS; i++){
+            iTemp = i;
+            intensity = image[j][i];
             
-            if (i < image.cols - lookForward){
-            		intensity2 = image.at<uchar>(j, i + lookForward);
+            if (i < NUM_COLS - lookForward){
+                    intensity2 = image[j][i + lookForward];
             }
             else{
-            		intensity2 = intensity;
+                    intensity2 = intensity;
             }
             
             if (intensity >= threshold && intensity2 >= threshold){
@@ -211,14 +207,14 @@ vector<vector<float> > leftEdges(Mat image, float threshold, int searchRange, in
             }
         }
         
-        if (iTemp == image.cols - 1){
-        		startLoc = 0;
+        if (iTemp == NUM_COLS - 1){
+                startLoc = 0;
         }
     }
     return edges;
 }
 
-vector<vector<float> > rightEdges(Mat image, float threshold, int searchRange, int lookForward)
+vector<vector<int> > rightEdges(int image[][NUMCOLS], float threshold, int searchRange, int lookForward)
 {
     //  Inputs:     image       =   m x n matrix containing pixel intensities
     //              threshold   =   the 'edge' intensity value
@@ -230,30 +226,30 @@ vector<vector<float> > rightEdges(Mat image, float threshold, int searchRange, i
     //              left through the rows
     
     // Allocate a 2d vector to contain the edge pixel locations
-    vector<vector<float> > edges;
-    vector<float> row;
+    vector<vector<int> > edges;
+    vector<int> row;
     edges.push_back(row);
     edges.push_back(row);
-    float intensity;
-    float intensity2;
+    int intensity;
+    int intensity2;
     int startLoc = 0;
     int iTemp;
     
     // Scan through rows to find edge pixels
-    for (int j=0; j<image.rows; j++){
-        for (int i=startLoc; i<image.cols; i++){
-        		iTemp = i;
-            intensity = image.at<uchar>(j, image.cols - i - 1);
+    for (int j=0; j<NUM_ROWS; j++){
+        for (int i=startLoc; i<NUM_COLS; i++){
+                iTemp = i;
+            intensity = image[j][NUM_COLS - i - 1];
             
-            if (i < image.cols - lookForward){
-            		intensity2 = image.at<uchar>(j, image.cols - i - 1 - lookForward);
+            if (i < NUM_COLS - lookForward){
+                    intensity2 = image[j][NUM_COLS - i - 1 - lookForward];
             }
             else{
-            		intensity2 = intensity;
+                    intensity2 = intensity;
             }
             
             if (intensity >= threshold && intensity2 >= threshold){
-                edges[0].push_back(image.cols - i -1);
+                edges[0].push_back(NUM_COLS - i -1);
                 edges[1].push_back(j);
                 
                 if (i > searchRange){
@@ -267,36 +263,14 @@ vector<vector<float> > rightEdges(Mat image, float threshold, int searchRange, i
             }
         }
         
-        if (iTemp == image.cols - 1){
-        		startLoc = 0;
+        if (iTemp == NUM_COLS - 1){
+                startLoc = 0;
         }
     }
     
     return edges;
 }
 // END EDGE DETECTION
-
-// Modify the image to highlight the edges
-Mat showEdges(Mat image, vector<vector<float> > edges)
-{
-    //  Inputs:     image       =   m x n matrix containing pixel intensities
-    //              edges       =   array of edge locations in the image
-    //                              reference frame
-    //
-    //  Outputs:    image       =   an copy of the original image with edges
-    //                              highlighted
-    //
-    //  Purpose:    to enable user to display edges on image to verify
-    //              functionality
-    //
-    //  Method:     Modify intensity values at edge locations to make them white
-    
-    for (int i=0; i<edges[0].size(); i++){
-        image.at<uchar>(edges[1][i],edges[0][i]) = 255;
-    }
-    return image;
-}
-
 
 // Find the minimum value in a vector
 float minVal(vector<float> array)
@@ -339,7 +313,7 @@ float maxVal(vector<float> array)
 }
 
 // Determine which side of the image to begin searching for edges from
-pair<string, float> startSide(Mat image, int bufferSize)
+pair<string, float> startSide(int image[][NUMCOLS], int bufferSize)
 {
     //  Inputs:     image       =   m x n matrix containing pixel intensities
     //              bufferSize  =   number of rows or columns to be used in
@@ -364,23 +338,23 @@ pair<string, float> startSide(Mat image, int bufferSize)
     float rightMean = 0;
     string side = "none";
     
-    for (int i=0;i<image.cols;i++){
+    for (int i=0;i<NUM_COLS;i++){
         for (int j=0;j<bufferSize;j++){
-            topMean += image.at<uchar>(j,i);
-            bottomMean += image.at<uchar>(image.rows-j-1,i);
+            topMean += image[j][i];
+            bottomMean += image[NUM_ROWS-j-1][i];
         }
     }
-    for (int i=0;i<image.rows;i++){
+    for (int i=0;i<NUM_ROWS;i++){
         for (int j=0;j<bufferSize;j++){
-            leftMean += image.at<uchar>(i,j);
-            rightMean += image.at<uchar>(i,image.cols-j);
+            leftMean += image[i][j];
+            rightMean += image[i][NUM_COLS-j];
         }
     }
     
-    topMean = topMean/(image.cols*bufferSize);
-    bottomMean = bottomMean/(image.cols*bufferSize);
-    leftMean = leftMean/(image.rows*bufferSize);
-    rightMean = rightMean/(image.rows*bufferSize);
+    topMean = topMean/(NUM_COLS*bufferSize);
+    bottomMean = bottomMean/(NUM_COLS*bufferSize);
+    leftMean = leftMean/(NUM_ROWS*bufferSize);
+    rightMean = rightMean/(NUM_ROWS*bufferSize);
     
     //     vector<float> sideArray = {topMean, bottomMean, leftMean, rightMean};
     vector<float> sideArray;
@@ -430,8 +404,7 @@ float calculateRoll(pair<float, float> center)
     return rollAngle;
 }
 
-lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float height)
-//tuple<float, float, float> circularLeastSquares(vector<vector<float> > edges, float width, float height)
+lstcircle circularLeastSquares(vector<vector<int> > edges, float width, float height)
 {
     //  Inputs:     edges       =   vector array of edges in image reference
     //                              frame
@@ -468,7 +441,7 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     float Svuu = 0;
     float r;
         
-		int upperBound = edges[0].size() - 1;
+    int upperBound = edges[0].size() - 1;
     
     for (int i=0;i<upperBound;i++) {
         // Need to add 0.5 if edges[0].size() is even
@@ -522,70 +495,161 @@ lstcircle circularLeastSquares(vector<vector<float> > edges, float width, float 
     return c1;
 }
 
-float subpixelEst(float int1, float intensity2, float threshold)
+lstcircle circularLeastSquaresSubPix(vector<vector<float> > edges, float width, float height)
 {
-    //  Inputs:     int1        =   intensity before edge pixel
+    //  Inputs:     edges       =   vector array of edges in image reference
+    //                              frame
+    //              width       =   number of columns in image matrix
+    //              height      =   number of rows in image matrix
+    //
+    //  Outputs:    xc          =   x-coordinate of center of least squares
+    //                              circle in transformed reference frame
+    //              yc          =   y-coordinate of center of least squares
+    //                              circle in transformed reference frame
+    //              r           =   radius of least squares circle
+    //
+    //  Method:     Least squares
+    //
+    //  Purpose:    to determine the coordinates of the best fit circle for the
+    //              edges in the transformed reference frame
+    
+    float xi = 0;
+    float yi = 0;
+    float xbar = 0;
+    float ybar = 0;
+    float xc = 0;
+    float yc = 0;
+    float ui = 0;
+    float vi = 0;
+    float uc = 0;
+    float vc = 0;
+    float Suu = 0;
+    float Suv = 0;
+    float Suuu = 0;
+    float Suvv = 0;
+    float Svv = 0;
+    float Svvv = 0;
+    float Svuu = 0;
+    float r;
+        
+    int upperBound = edges[0].size() - 1;
+    
+    for (int i=0;i<upperBound;i++) {
+        // Need to add 0.5 if edges[0].size() is even
+        if (edges[0].size() % 2) {
+            xi = xi + edges[0][i] - width*0.5;
+            yi = yi + height*0.5 - edges[1][i];
+        }
+        else {
+            xi = xi + edges[0][i] - width*0.5 + 0.5;
+            yi = yi + height*0.5  - 0.5 - edges[1][i];
+        }
+    }
+    xbar = xi/edges[0].size();
+    ybar = yi/edges[1].size();
+    
+    for (int i=0;i<upperBound;i++) {
+        // Need to add 0.5 if edges[0].size() is even
+        if (edges[0].size() % 2) {
+            xi = edges[0][i] - width*0.5;
+            yi = height*0.5 - edges[1][i];
+        }
+        else {
+            xi = edges[0][i] - width*0.5 + 0.5;
+            yi = height*0.5  - 0.5 - edges[1][i];
+        }
+        ui = xi - xbar;
+        vi = yi - ybar;
+        Suu = Suu + ui*ui;
+        Suv = Suv + ui*vi;
+        Svv = Svv + vi*vi;
+        Suuu = Suuu + ui*ui*ui;
+        Suvv = Suvv + ui*vi*vi;
+        Svvv = Svvv + vi*vi*vi;
+        Svuu = Svuu + vi*ui*ui;
+        
+    }
+    
+    vc = (0.5*(Suuu + Suvv) - ((Svvv + Svuu)*Suu)/2/Suv)/(Suv - Svv*Suu/Suv);
+    uc = (0.5*(Svvv + Svuu) - vc*Svv)/Suv;
+    
+    xc = uc + xbar;
+    yc = vc + ybar;
+    
+    r = sqrt(uc*uc + vc*vc + (Suu + Svv)/upperBound);
+    
+    lstcircle c1;
+    c1.r = r;
+    c1.xc = xc;
+    c1.yc = yc;
+    
+    return c1;
+}
+
+float subpixelEst(float intensity1, float intensity2, float threshold)
+{
+    //  Inputs:     intensity1        =   intensity before edge pixel
     //              intensity2        =   intensity after edge pixel
     //              threshold   =   threshold for edge
     //
     //  Outputs:    fractX      =   fractional location withing edge pixel where
     //                              edge begins
     //
-    //  Method:     Linear interpolation between int1 and int3
+    //  Method:     Linear interpolation between intensity1 and int3
     //
     //  Purpose:    to determine the fractional location of edge within edge
     //              pixel
     
-    float fractX = (threshold - int1)*3/(intensity2 - int1) - 1;
+    float fractX = (threshold - intensity1)*3/(intensity2 - intensity1) - 1;
     return fractX;
 }
 
 // This is a first attempt at subpixel estimation
-vector<vector<float> > performSubpixelEstimation(Mat image, vector<vector<float> > edges, float threshold, string side)
+vector<vector<float> > performSubpixelEstimation(int image[][NUMCOLS], vector<vector<int> > edges, float threshold, string side)
 {
     vector<vector<float> > modEdges;
     vector<float> row;
     modEdges.push_back(row);
     modEdges.push_back(row);
-    float int1;
+    float intensity1;
     float intensity2;
     
     if (side == "top") {
         for (int i=0; i<edges[0].size(); i++) {
-            int1 = image.at<uchar>(edges[1][i]-1,edges[0][i]);
-            intensity2 = image.at<uchar>(edges[1][i],edges[0][i]);
-            modEdges[1].push_back(edges[1][i] + subpixelEst(int1, intensity2, threshold));
+            intensity1 = image[edges[1][i]-1][edges[0][i]];
+            intensity2 = image[edges[1][i]][edges[0][i]];
+            modEdges[1].push_back(edges[1][i] + subpixelEst(intensity1, intensity2, threshold));
             modEdges[0].push_back(edges[0][i]);
         }
     }
     else if (side == "bottom") {
         for (int i=0; i<edges[0].size(); i++) {
-            int1 = image.at<uchar>(edges[1][i]+1,edges[0][i]);
-            intensity2 = image.at<uchar>(edges[1][i],edges[0][i]);
-            modEdges[1].push_back(edges[1][i] - subpixelEst(int1, intensity2, threshold));
+            intensity1 = image[edges[1][i]+1][edges[0][i]];
+            intensity2 = image[edges[1][i]][edges[0][i]];
+            modEdges[1].push_back(edges[1][i] - subpixelEst(intensity1, intensity2, threshold));
             modEdges[0].push_back(edges[0][i]);
         }
     }
     else if (side == "left") {
         for (int i=0; i<edges[0].size(); i++) {
-            int1 = image.at<uchar>(edges[1][i],edges[0][i]-1);
-            intensity2 = image.at<uchar>(edges[1][i],edges[0][i]);
+            intensity1 = image[edges[1][i]][edges[0][i]-1];
+            intensity2 = image[edges[1][i]][edges[0][i]];
             modEdges[1].push_back(edges[1][i]);
-            modEdges[0].push_back(edges[0][i] + subpixelEst(int1, intensity2, threshold));
+            modEdges[0].push_back(edges[0][i] + subpixelEst(intensity1, intensity2, threshold));
         }
     }
     else if (side == "right") {
         for (int i=0; i<edges[0].size(); i++) {
-            int1 = image.at<uchar>(edges[1][i],edges[0][i]+1);
-            intensity2 = image.at<uchar>(edges[1][i],edges[0][i]);
+            intensity1 = image[edges[1][i]][edges[0][i]+1];
+            intensity2 = image[edges[1][i]][edges[0][i]];
             modEdges[1].push_back(edges[1][i]);
-            modEdges[0].push_back(edges[0][i] - subpixelEst(int1, intensity2, threshold));
+            modEdges[0].push_back(edges[0][i] - subpixelEst(intensity1, intensity2, threshold));
         }
     }
     return modEdges;
 }
 
-float calculatePitch2(pair<float, float> center, float R, float fLength, float pixelPitch)
+float calculatePitch(pair<float, float> center, float R, float fLength, float pixelPitch)
 {
     //  Inputs:     center      =   a float pair specifying the center of the
     //                              circle found by least squares method. Must
@@ -606,7 +670,7 @@ float calculatePitch2(pair<float, float> center, float R, float fLength, float p
 
 float reducePitchError(float pitch, coefficients coeff)
 {
-		//  Inputs:     pitch      =   a float containing the raw pitch angle in degrees
+        //  Inputs:     pitch      =   a float containing the raw pitch angle in degrees
     //
     //  Outputs:    pitchCor   =   corrected pitch angle in degrees
     //
@@ -620,7 +684,7 @@ float reducePitchError(float pitch, coefficients coeff)
 
 float reduceRollError(float roll, coefficients coeff)
 {
-		//  Inputs:     roll      =   a float containing the raw roll angle in degrees
+        //  Inputs:     roll      =   a float containing the raw roll angle in degrees
     //
     //  Outputs:    rollCor   =   corrected roll angle in degrees
     //
@@ -634,13 +698,13 @@ float reduceRollError(float roll, coefficients coeff)
 
 coefficients getCoefficients(float height)
 {
-		//  Inputs:     height    =   a float containing height of the sensor
+        //  Inputs:     height    =   a float containing height of the sensor
     //
     //  Outputs:    coeffs    =   a coefficient structure containing the
-    //														error correction polynomial coeffiients
+    //                                                        error correction polynomial coeffiients
     //
     //  Purpose:    to correct determine the correction coefficients for a
-    //							given altitude
+    //                            given altitude
     //
     //  To Do:      Not currently working well. Debug
     

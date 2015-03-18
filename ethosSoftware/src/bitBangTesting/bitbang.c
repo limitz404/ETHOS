@@ -1,7 +1,7 @@
 /*****************************************************************************
 * AUTHORS: PATRICK KLEIN, TAYLOR DEAN                                        *
 * TEAM: ETHOS                                                                *
-* FILE: bitBangController.c                                                  *
+* FILE: bitbang.c                                                  *
 * CREATED: 3 MARCH 2015                                                      *
 * PURPOSE: TO LOAD BITBANG ASSEMBLY CODE ONTO PRU 1, START THE CODE, THEN    *
 *          GRAB IMAGE DATA FROM THE PRU DATA RAM.                            *
@@ -22,25 +22,18 @@
 *****************************************************************************/
 
 #define PRU_NUM     1
-#define NUM_ROWS    128
-#define NUM_COLS    162
+#define NUMROWS     128
+#define NUMCOLS     162
 #define MAX_REG     2047
 #define AM33XX
-
-/*****************************************************************************
-* Local Function Declarations                                                *
-*****************************************************************************/
-
-int dramInitialization();
 
 /*****************************************************************************
 * Global Variable Definitions                                                *
 *****************************************************************************/
 
-int numCols = NUM_COLS;
-int numRows = NUM_ROWS;
+int numCols = NUMCOLS;
+int numRows = NUMROWS;
 
-unsigned int frameData[NUM_ROWS][NUM_COLS];
 static void *pruDataMem;
 static unsigned int *pruDataMem_int;
 
@@ -48,14 +41,13 @@ static unsigned int *pruDataMem_int;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-int doBitBang(void)
+int doBitBang(int frameData[][NUMCOLS])
 {
     unsigned int ret;
     tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 
     /* Initialize the PRU */
     prussdrv_init ();
-
     /* Open PRU Interrupt */
     ret = prussdrv_open(PRU_EVTOUT_1);
 
@@ -68,8 +60,15 @@ int doBitBang(void)
     prussdrv_pruintc_init(&pruss_intc_initdata);
 
     /* Initialize the data memory */
-    dramInitialization();
+    int i;
+    prussdrv_map_prumem (PRUSS0_PRU1_DATARAM, &pruDataMem);
+    pruDataMem_int = (unsigned int*) pruDataMem;
 
+    // Flush the values in the PRU data memory locations
+    for(i = 0; i<2048; i++){
+      pruDataMem_int[i] = 0x00000000;
+    }
+    
     /* Execute PRU code */
     prussdrv_exec_program ( PRU_NUM, "./bitBang.bin");
 
@@ -77,7 +76,6 @@ int doBitBang(void)
     int line = 0;
     int regblock;
     int regmax;
-    int i;
     int reg;
     while ( line < numRows ){
         if ( pruDataMem_int[0] != 0 ){
@@ -101,31 +99,11 @@ int doBitBang(void)
     FILE *fid = fopen("file.txt","w");
 
     int col;
-    for (line = 0; line < NUM_ROWS; line++){
-        for (col = 0; col < NUM_COLS; col++){
+    for (line = 0; line < NUMROWS; line++){
+        for (col = 0; col < NUMCOLS; col++){
             fprintf(fid, "%u\t", frameData[line][col] & 0xff);
         }
         fprintf(fid,"\n");
     }
-
-    return(0);
-}
-
-/*****************************************************************************
-* Local Function Definitions                                                 *
-*****************************************************************************/
-
-// Initialize the PRU data ram by writing 0s to the registers
-int dramInitialization()
-{
-    int i;
-    prussdrv_map_prumem (PRUSS0_PRU1_DATARAM, &pruDataMem);
-    pruDataMem_int = (unsigned int*) pruDataMem;
-
-    // Flush the values in the PRU data memory locations
-    for(i = 0; i<2048; i++){
-      pruDataMem_int[i] = 0x00000000;
-    }
-
     return(0);
 }

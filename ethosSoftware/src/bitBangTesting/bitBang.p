@@ -60,7 +60,7 @@ LOOP    COL_LOOP, NUMCOLS                       // hardware assisted loop (LINE)
         QBEQ            EXIT, r14, NUMROWS
 
         // CHANGES FOR NO CAMERA OPERATION
-        MOV             r10, 100000
+        MOV             r10, 1000000
         QBA             DELAY
 
 POSTDELAY:

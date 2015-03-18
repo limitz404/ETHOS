@@ -9,31 +9,29 @@
 #ifndef EDGE_DETECTION_H
 #define EDGE_DETECTION_H
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
 #include <iostream>
 #include <math.h>
+#include <vector>
+#include <string>
 #include "dataStructures.h"
 
-using namespace cv;
-using namespace std;
-
+#define NUMCOLS 162
 #define PI 3.141592653589793238462643383279502884197
 
 // FORWARD DECLARATION OF FUNCTIONS
-vector<vector<float> > topEdges(Mat, float, int, int);
-vector<vector<float> > bottomEdges(Mat, float, int, int);
-vector<vector<float> > leftEdges(Mat, float, int, int);
-vector<vector<float> > rightEdges(Mat, float, int, int);
-Mat showEdges(Mat, vector<vector<float> >);
-float minVal(vector<float>);
-float maxVal(vector<float>);
-pair<string, float> startSide(Mat, int);
-float calculateRoll(pair<float, float>);
-lstcircle circularLeastSquares(vector<vector<float> >, float, float);
+std::vector<std::vector<int> > topEdges(int [][NUMCOLS], float, int, int);
+std::vector<std::vector<int> > bottomEdges(int [][NUMCOLS], float, int, int);
+std::vector<std::vector<int> > leftEdges(int [][NUMCOLS], float, int, int);
+std::vector<std::vector<int> > rightEdges(int [][NUMCOLS], float, int, int);
+float minVal(std::vector<float>);
+float maxVal(std::vector<float>);
+std::pair<std::string, float> startSide(int [][NUMCOLS], int);
+float calculateRoll(std::pair<float, float>);
+lstcircle circularLeastSquares(std::vector<std::vector<int> >, float, float);
+lstcircle circularLeastSquaresSubPix(std::vector<std::vector<float> >, float, float);
 float subpixelEst(float, float, float);
-vector<vector<float> > performSubpixelEstimation(Mat, vector<vector<float> >, float, string);
-float calculatePitch2(pair<float, float> , float , float , float );
+std::vector<std::vector<float> > performSubpixelEstimation(int [][NUMCOLS], std::vector<std::vector<int> >, float, std::string);
+float calculatePitch(std::pair<float, float> , float , float , float );
 float reducePitchError(float, coefficients);
 float reduceRollError(float, coefficients);
 coefficients getCoefficients(float);
