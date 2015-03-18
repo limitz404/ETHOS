@@ -14,28 +14,28 @@
 export CROSS_COMPILE=
 
 /bin/echo "Compiling interface..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/interface
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/app_loader/interface
 /usr/bin/make clean
 /usr/bin/make
 
 /bin/echo "Copying pasm to pasm_linuxintel..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/utils
 /bin/mv pasm pasm_linuxintel
 
 /bin/echo "Running linuxbuild..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils/pasm_source
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/utils/pasm_source
 source ./linuxbuild
 
 /bin/echo "Copying library files..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/lib
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/app_loader/lib
 /bin/cp * /usr/lib/
 
 /bin/echo "Copying header files..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/app_loader/include
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/app_loader/include
 /bin/cp * /usr/include/
 
 /bin/echo "Copying pasm..."
-cd /root/ethosSoftware/src/am335x_pru_package-master/pru_sw/utils/
+cd /root/ethosSoftware/requiredFiles/am335x_pru_package-master/pru_sw/utils/
 /bin/cp pasm /usr/bin/
 
 /bin/echo "Copying device tree..."

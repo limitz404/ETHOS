@@ -26,4 +26,11 @@ struct coefficients {
     float Pc;
 };
 
+struct attitude {
+    float roll;
+    float pitch;
+    float rollCor;
+    float pitchCor;
+};
+
 #endif

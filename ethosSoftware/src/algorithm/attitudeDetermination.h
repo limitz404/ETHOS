@@ -11,8 +11,8 @@
 #ifndef ATTITUDE_DETERMINATION_H
 #define ATTITUDE_DETERMINATION_H
 
-void initializeAlgorithm();
-void determineAttitude();
-void calibrateAlgorithm();
+#include "dataStructures.h"
+
+attitude determineAttitude(int (*)[162]);
 
 #endif
