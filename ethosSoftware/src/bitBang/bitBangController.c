@@ -72,7 +72,7 @@ int main (void)
     dramInitialization();
 
     /* Execute PRU code */
-    prussdrv_exec_program(PRU_NUM, "./bitBang.bin");
+    prussdrv_exec_program(PRU_NUM, "/root/ethosSoftware/bin/bitBang.bin");
 
     //printf("Beginning data acquisition...\n");
     unsigned int ack;

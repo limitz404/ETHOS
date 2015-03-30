@@ -4,14 +4,16 @@
 # CREATED:      03-29-2015                                                               #
 # ORGANIZATION: CU-BOULDER, AES SENIOR DESIGN TEAM ETHOS                                 #
 # PURPOSE:      COMPILES, LINKS, AND ASSEMBLES SOURCE CODE                               #
-# NOTES:        CURRENTLY COMPILES TEST BITBANG CODE (NOT RELIANT ON IR CAMERA),         #
-#               INDEPENDENT OF CURRENT DIRECTORY                                         #
+# options:      clean                                                                    #
+#               test                                                                     #
+#               -O1 [all]                                                                #
+#               -O2 [all]                                                                #
+#               -O3 [all]                                                                #
+#               debug, -g                                                                #
+#               profile, -pg                                                             #
+# NOTES:        INDEPENDENT OF CURRENT DIRECTORY                                         #
+#               OPTIONS MUST BE LOWER-CASE                                               #
 ##########################################################################################
-
-# options:    clean
-#             optimize
-#             debugging
-#             profiling
 
 #!/bin/bash
 
@@ -22,6 +24,8 @@ SRC=/root/ethosSoftware/src
 OBJ=/root/ethosSoftware/obj
 OUT=/root/ethosSoftware/output
 BIN=/root/ethosSoftware/bin
+
+OPTIM_OPTIONS=""
 
 COMPILE_OPTIONS=""
 LINK_OPTIONS=""
@@ -37,28 +41,46 @@ do
                  rm $OBJ/*
                  ;;
 
-    "optimize1" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O1"
-                    LINK_OPTIONS="$LINK_OPTIONS -O1"
-                    ;;
-
-    "optimize2" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O2"
-                    LINK_OPTIONS="$LINK_OPTIONS -O2"
-                    ;;
-
-    "optimize3" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O3"
-                    LINK_OPTIONS="$LINK_OPTIONS -O3"
-                    ;;
-
-    "debug" )    COMPILE_OPTIONS="$COMPILE_OPTIONS -g"
-                 LINK_OPTIONS="$LINK_OPTIONS -g"
+    "test" )     TEST=1
                  ;;
+
+    "-O1" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O1"
+                  ;;
+
+    "-O2" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O2"
+                  ;;
+
+    "-O3" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O3"
+                  ;;
+
+    "-O1 all" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O1"
+                  ;;
+
+    "-O2 all" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O2"
+                  ;;
+
+    "-O3 all" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -O3"
+                  ;;
+
+    "debug" )     COMPILE_OPTIONS="$COMPILE_OPTIONS -g"
+                  LINK_OPTIONS="$LINK_OPTIONS -g"
+                  ;;
+
+    "-g" )        COMPILE_OPTIONS="$COMPILE_OPTIONS -g"
+                  LINK_OPTIONS="$LINK_OPTIONS -g"
+                  ;;
 
     "profile" )    COMPILE_OPTIONS="$COMPILE_OPTIONS -pg"
                    LINK_OPTIONS="$LINK_OPTIONS -pg"
                    ;;
 
-    * )    echo "Unrecognized command: $arg"
-                   ;;
+    "-pg" )       COMPILE_OPTIONS="$COMPILE_OPTIONS -pg"
+                  LINK_OPTIONS="$LINK_OPTIONS -pg"
+                  ;;
+
+    * )           echo "Unrecognized command: $arg"
+                  echo "Note: commands must be lower case"
+                  ;;
 
     esac
 
@@ -68,16 +90,19 @@ done
 g++ -c -I $SRC/common/ -o $OBJ/edgeDetection.o $SRC/algorithm/edgeDetection.cpp -std=c++0x $COMPILE_OPTIONS
 g++ -c -I $SRC/common/ -o $OBJ/attitudeDetermination.o $SRC/algorithm/attitudeDetermination.cpp -std=c++0x $COMPILE_OPTIONS
 g++ -c -I $SRC/common/ -o $OBJ/common.o $SRC/common/common.cpp $COMPILE_OPTIONS
-g++ -c -I $SRC/bitBangTesting/ -I $SRC/common/ -I $SRC/algorithm/ -o $OBJ/main.o $SRC/common/main.cpp -std=c++0x $COMPILE_OPTIONS
+g++ -c -I $SRC/bitBang/ -I $SRC/common/ -I $SRC/algorithm/ -o $OBJ/main.o $SRC/common/main.cpp -std=c++0x $COMPILE_OPTIONS
 
 # compile C source file and place into OBJ
-gcc -I $SRC/common/ -I $INC -L $LIB -c -o $OBJ/bitBangController.o $SRC/bitBangTesting/bitBangController.c -lpthread -lprussdrv $COMPILE_OPTIONS
+gcc -I $SRC/common/ -I $INC -L $LIB -c -o $OBJ/bitBangController.o $SRC/bitBang/bitBangController.c -lpthread -lprussdrv $COMPILE_OPTIONS
 
 # assemble PRU code and place into OBJ
-pasm -V3 -b SRC/bitBangTesting/bitBang.p OBJ/bitBang > $OUT/pasmLog.txt
+if [ $TEST -eq 1 ]
+then
+    pasm -V3 -b $SRC/bitBangTesting/bitBang.p $BIN/bitBang > $OUT/pasmLog.txt
+else
+    pasm -V3 -b $SRC/bitBang/bitBang.p $BIN/bitBang > $OUT/pasmLog.txt
+fi
 
 # link object files and place into BIN
 g++ -I $INC -L $LIB $OBJ/common.o $OBJ/edgeDetection.o $OBJ/attitudeDetermination.o $OBJ/main.o $OBJ/bitBangController.o -o $BIN/ethos -lpthread -lprussdrv $LINK_OPTIONS
-
-
 
