@@ -6,6 +6,7 @@
 # PURPOSE:      COMPILES, LINKS, AND ASSEMBLES SOURCE CODE                               #
 # options:      clean                                                                    #
 #               test                                                                     #
+#               -Wall, warnings                                                          #
 #               -O1 [all]                                                                #
 #               -O2 [all]                                                                #
 #               -O3 [all]                                                                #

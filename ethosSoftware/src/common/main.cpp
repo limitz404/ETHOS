@@ -40,24 +40,36 @@ using namespace std;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-
-int main()
+int main(int argc, char *argv)
 {
 
+    int single;
+    if( arg[1] == "single" ){
+        single = 1;
 
-    printf("debug\n");
+        /* create empty file */
+        FILE * textPtr;
+        filePtr = fopen( "/root/ethosSoftware/output/image.txt", "w" );
+        if( filePtr == NULL ){
+            printf("Unable to create 'image.txt'");
+            return(-1);
+        }
+    } else {
+        single = 0;
+    }
+
     int image[NUMROWS][NUMCOLS];
 
-    /* create empty file
-    FILE * filePtr;
-    filePtr = fopen( "/root/ethosSoftware/output/logFile.txt", "w" );
-    if( filePtr == NULL ){
-        printf("Unable to create 'logFile.txt'");
+    /* create empty file */
+    FILE * logPtr;
+    logPtr = fopen( "/root/ethosSoftware/output/logFile.bin", "w" );
+    if( logPtr == NULL ){
+        printf("Unable to create 'logFile.bin'");
         return(-1);
     }
-    */
 
-    //float floatBuffer[2];
+
+    float floatBuffer[2];
 
     int loopVar = 0;
     while( loopVar < 100 ){
@@ -65,22 +77,21 @@ int main()
         //
 
         /* get current image */
-        printf("debug\n");
         doBitBang(image);
+
 
 
         //
 
         /* calculate displacement */
-        printf("debug\n");
         attitude finalAtt = determineAttitude(image);
-        printf("%i\t%f\t%f\n",loopVar,finalAtt.roll, finalAtt.pitch);
 
         /* flag bad data (outside limits or changed too much) */
 
         /* check CAN for requests */
 
         /* send displacement if requested */
+
 
 
         //
@@ -90,21 +101,35 @@ int main()
         /* send health if requested */
 
 
+
         //
 
-        /* write data to file
+        /* write data to file */
         floatBuffer[0] = finalAtt.roll;
         floatBuffer[1] = finalAtt.pitch;
-        fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), filePtr );
-        */
-        //fprintf(filePtr, "%u\t%f\t%f\n",loop++,finalAtt.roll, finalAtt.pitch);
+        fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), logPtr );
+
+
+        printf(filePtr, "%u\t%f\t%f\n",loop++,finalAtt.roll, finalAtt.pitch);
+
+        if( single == 1 ){
+            int col;
+            int line;
+            for (line = 0; line < NUMROWS; line++){
+                for (col = 0; col < NUMCOLS; col++){
+                    fprintf(textPtr, "%u\t", image[line][col] & 0xff);
+                }
+            fprintf(textPtr,"\n");
+            }
+            fclose(textPtr);
+            break;
+        }
+
         loopVar++;
-        printf("debug\n");
 
     }
 
-    printf("debug\n");
-    //fclose(filePtr);
+    fclose(logPtr);
     return 0;
 
 }
