@@ -20,15 +20,15 @@
 using namespace std;
 
 attitude determineAttitude(int image[][NUMCOLS])
-{    
+{
     attitude attitudeCalc;
     coefficients coeff = getCoefficients(ALTITUDE);
-    
+
     pair<string, float> output = startSide(image, BUFFER);
     float threshold = output.second*THRESHOLD_FACTOR;
-    
+
     vector<vector<int> > edges;
-    
+
     if (output.first == "top") {
         edges = topEdges(image, threshold, SEARCH_RANGE, LOOK_FORWARD);
     }
@@ -44,9 +44,9 @@ attitude determineAttitude(int image[][NUMCOLS])
     else {
         cout << "Did not recognize start side value" << endl;
     }
-    
+
     lstcircle lstSqCircle;
-    
+
     // Perform subpixel estimation if desired
     if (SUBPIX == 1) {
         vector<vector<float> > modEdges = performSubpixelEstimation(image,  edges, threshold, output.first);
@@ -55,13 +55,13 @@ attitude determineAttitude(int image[][NUMCOLS])
     else {
         lstSqCircle = circularLeastSquares(edges, NUM_COLS, NUM_ROWS);
     }
-    
+
     pair<float, float> center = make_pair(lstSqCircle.xc, lstSqCircle.yc);
-    
+
     attitudeCalc.roll = calculateRoll(center);
     attitudeCalc.pitch = calculatePitch(center, lstSqCircle.r, F_LENGTH, PIXEL_PITCH);
     attitudeCalc.rollCor = reduceRollError(attitudeCalc.roll, coeff);
     attitudeCalc.pitchCor = reducePitchError(attitudeCalc.pitch, coeff);
-    
+
     return attitudeCalc;
 }

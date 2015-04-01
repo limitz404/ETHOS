@@ -45,17 +45,19 @@ int main()
 {
 
 
+    printf("debug\n");
     int image[NUMROWS][NUMCOLS];
 
-    /* create empty file */
+    /* create empty file
     FILE * filePtr;
     filePtr = fopen( "/root/ethosSoftware/output/logFile.txt", "w" );
     if( filePtr == NULL ){
         printf("Unable to create 'logFile.txt'");
         return(-1);
     }
+    */
 
-    float floatBuffer[2];
+    //float floatBuffer[2];
 
     int loopVar = 0;
     while( loopVar < 100 ){
@@ -63,12 +65,14 @@ int main()
         //
 
         /* get current image */
+        printf("debug\n");
         doBitBang(image);
 
 
         //
 
         /* calculate displacement */
+        printf("debug\n");
         attitude finalAtt = determineAttitude(image);
         printf("%i\t%f\t%f\n",loopVar,finalAtt.roll, finalAtt.pitch);
 
@@ -100,7 +104,7 @@ int main()
     }
 
     printf("debug\n");
-    fclose(filePtr);
+    //fclose(filePtr);
     return 0;
 
 }

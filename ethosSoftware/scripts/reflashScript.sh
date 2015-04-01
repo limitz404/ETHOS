@@ -49,6 +49,7 @@ cd /lib/firmware/
 #/bin/cp /root/ethosSoftware/requiredFiles/uEnv.txt /boot/uboot/uEnv.txt
 
 /bin/echo "Making ETHOS software..."
+source /root/ethosSoftware/scripts/buildETHOS.sh clean
 
 cd /root/ethosSoftware/
 
