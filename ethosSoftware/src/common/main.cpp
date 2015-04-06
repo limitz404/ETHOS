@@ -40,15 +40,14 @@ using namespace std;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-int main(int argc, char *argv)
+
+int main(int argc, char *argv[])
 {
 
     int single;
-    if( arg[1] == "single" ){
+    FILE * filePtr;
+    if( argc > 1 ){
         single = 1;
-
-        /* create empty file */
-        FILE * textPtr;
         filePtr = fopen( "/root/ethosSoftware/output/image.txt", "w" );
         if( filePtr == NULL ){
             printf("Unable to create 'image.txt'");
@@ -110,18 +109,18 @@ int main(int argc, char *argv)
         fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), logPtr );
 
 
-        printf(filePtr, "%u\t%f\t%f\n",loop++,finalAtt.roll, finalAtt.pitch);
+        printf("%u\t%f\t%f\n",loopVar,finalAtt.roll, finalAtt.pitch);
 
         if( single == 1 ){
             int col;
             int line;
             for (line = 0; line < NUMROWS; line++){
                 for (col = 0; col < NUMCOLS; col++){
-                    fprintf(textPtr, "%u\t", image[line][col] & 0xff);
+                    fprintf(filePtr, "%u\t", image[line][col]);
                 }
-            fprintf(textPtr,"\n");
+            fprintf(filePtr,"\n");
             }
-            fclose(textPtr);
+            fclose(filePtr);
             break;
         }
 

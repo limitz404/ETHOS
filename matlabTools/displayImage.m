@@ -2,6 +2,7 @@ close all;
 clear all;
 clc;
 
-filePath = '/Users/taylordean/ETHOS_Git/BitBang/file.txt';
+filePath = './image.txt';
 bitbangImage = load(filePath);
-imshow(bitbangImage);
+imagesc(fliplr(rot90(bitbangImage,0)));
+colormap(gray);
