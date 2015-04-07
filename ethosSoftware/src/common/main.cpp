@@ -35,10 +35,34 @@ extern "C" {
 
 using namespace std;
 
+/*
+struct canFlags{
+    int sendHealth;
+    int sendDisp;
+    int sendLog;
+};
+*/
 
 /*****************************************************************************
 * Global Function Definitions                                                *
 *****************************************************************************/
+
+/*
+struct canFlags canDump();
+
+
+void canHandler( struct attitude  displacement; float health ){
+
+
+    int check = 1;
+
+    while( check ){
+        flag = canDump();
+        switch( flag 
+    }
+
+}
+*/
 
 int main( int argc, char *argv[] )
 {
