@@ -35,7 +35,7 @@ int numCols = 162;
 int numRows = 128;
 
 static void *pruDataMem;
-static unsigned int *pruDataMem_int;
+static volatile unsigned int *pruDataMem_int;
 
 /*****************************************************************************
 * Global Function Definitions                                                *

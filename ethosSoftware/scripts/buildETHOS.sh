@@ -42,46 +42,58 @@ do
     "clean" )    rm $BIN/*
                  rm $OUT/*.*
                  rm $OBJ/*
+                 echo "clean"
                  ;;
 
     "test" )     TEST=1
+                 echo "test"
                  ;;
 
     "-O1" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O1"
+                  echo "-O1"
                   ;;
 
     "-O2" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O2"
+                  echo "-O2"
                   ;;
 
     "-O3" )       OPTIM_OPTIONS="$OPTIM_OPTIONS -O3"
+                  echo "-O3"
                   ;;
 
     "all" )       COMPILE_OPTIONS="$COMPILE_OPTIONS $OPTIM_OPTIONS"
                   OPTIM_OPTIONS=""
+                  echo "all"
                   ;;
 
     "debug" )     COMPILE_OPTIONS="$COMPILE_OPTIONS -g"
                   LINK_OPTIONS="$LINK_OPTIONS -g"
+                  echo "debug"
                   ;;
 
     "-g" )        COMPILE_OPTIONS="$COMPILE_OPTIONS -g"
                   LINK_OPTIONS="$LINK_OPTIONS -g"
+                  echo "-g"
                   ;;
 
     "profile" )    COMPILE_OPTIONS="$COMPILE_OPTIONS -pg"
                    LINK_OPTIONS="$LINK_OPTIONS -pg"
+                   echo "profile"
                    ;;
 
     "-pg" )        COMPILE_OPTIONS="$COMPILE_OPTIONS -pg"
                    LINK_OPTIONS="$LINK_OPTIONS -pg"
+                   echo "-pg"
                    ;;
 
     "warnings" )   COMPILE_OPTIONS="$COMPILE_OPTIONS -Wall"
                    LINK_OPTIONS="$LINK_OPTIONS -Wall"
+                   echo "warnings"
                    ;;
 
     "-Wall" )      COMPILE_OPTIONS="$COMPILE_OPTIONS -Wall"
                    LINK_OPTIONS="$LINK_OPTIONS -Wall"
+                   echo "-Wall"
                    ;;
 
     * )           echo "Unrecognized command: $arg"

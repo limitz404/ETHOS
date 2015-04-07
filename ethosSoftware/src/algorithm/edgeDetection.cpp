@@ -347,7 +347,7 @@ pair<string, float> startSide(int image[][NUMCOLS], int bufferSize)
     for (int i=0;i<NUM_ROWS;i++){
         for (int j=0;j<bufferSize;j++){
             leftMean += image[i][j];
-            rightMean += image[i][NUM_COLS-j];
+            rightMean += image[i][NUM_COLS-j-1];
         }
     }
     
