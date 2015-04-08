@@ -44,7 +44,7 @@ attitude determineAttitude(int image[][NUMCOLS])
     else {
         cout << "Did not recognize start side value" << endl;
     }
- 
+
     lstcircle lstSqCircle;
 
     // Perform subpixel estimation if desired

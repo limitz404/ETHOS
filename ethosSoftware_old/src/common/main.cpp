@@ -43,36 +43,27 @@ using namespace std;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-/*
-int attitude parseLog(struct attitude *logAtt)
-{
-
-    FILE * oldLogPtr;
-    oldLogPtr = fopen( "/root/ethosSoftware/output/logFile.txt", "r" );
-    if( oldLogPtr == NULL ){
-        return(-1);
-    }
-
-    
-
-}
-*/
-
-
 int main( int argc, char *argv[] )
 {
 
-    int single = 0, save = 0;
+    FILE * filePtr;
+
+    int single;
 
     /* chech for single frame mode */
-    if( argc > 2){
-        save = 1;
+    if( argc > 1 ){
         single = 1;
-    }else if( argc > 1 ){
-        save = 1;
+        filePtr = fopen( "/root/ethosSoftware/output/image.txt", "w" );
+        if( filePtr == NULL ){
+            printf("Unable to create 'image.txt'");
+            return(-1);
+        }
+    } else {
+        single = 0;
     }
 
     /* declare image */
+
     int image[NUMROWS][NUMCOLS];
 
     /* create empty log file file */
@@ -86,15 +77,12 @@ int main( int argc, char *argv[] )
 
     float floatBuffer[2];
 
-    FILE * filePtr;
+    //clock_t refTime = clock();
 
     /* main while loop */
     unsigned int loopVar = 0;
     unsigned int lineCounter = 0;
-    clock_t refTime = clock();
-
-    while( loopVar < 3*60*7 ){
-    //while( loopVar < 100 ){
+    while( 1 ){
 
         //
         /* get current image */
@@ -114,44 +102,36 @@ int main( int argc, char *argv[] )
 
         //
         /* write data to file */
-        floatBuffer[0] = finalAtt.roll;
-        floatBuffer[1] = finalAtt.pitch;
+        //floatBuffer[0] = finalAtt.roll;
+        //floatBuffer[1] = finalAtt.pitch;
         //fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), logPtr );
 
-        //printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+        printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
 
         /* cycle back to beginning of file every 200 minutes */
+        /** option to use absolute time or based on average data rate **/
+        // if( ( clock()-refTime )/CLOCKS_PER_SEC > LOG_TIME ){
         if( ~single && ( lineCounter/DATA_RATE > LOG_TIME) ){
+            //refTime = clock();
             lineCounter = 0;
             rewind(logPtr);
-            clock_t endTime = clock();
-            printf("Looping back to beginning of log file (%f minutes)\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC/60);
+            return(0); // let's break for now
         }
 
         /* write data to file */
         fprintf(logPtr, "%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
 
-        if( save == 1 ){
-            char stringBuffer[50];
-            sprintf(stringBuffer, "/root/ethosSoftware/output/image%u.txt", loopVar);
-            filePtr = fopen( stringBuffer, "w" );
-            if( filePtr == NULL ){
-                printf("Unable to create 'image%u.txt'", loopVar);
-                return(-1);
-            }
+        /* save image and break if single mode */
+        if( single == 1 ){
             int col;
             int line;
             for (line = 0; line < NUMROWS; line++){
                 for (col = 0; col < NUMCOLS; col++){
-                    fprintf(filePtr, "%i\t", (int) image[line][col]);
+                    fprintf(filePtr, "%i\t", (int) image[line][col] & 0xff);
                 }
                 fprintf(filePtr,"\n");
             }
             fclose(filePtr);
-        }
-
-        /* save image and break if single mode */
-        if( single == 1 ){
             break;
         }
 
@@ -161,8 +141,6 @@ int main( int argc, char *argv[] )
     }
 
     fclose(logPtr);
-    clock_t endTime = clock();
-    printf("%u frames processed in %f seconds\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC);
     return 0;
 
 }

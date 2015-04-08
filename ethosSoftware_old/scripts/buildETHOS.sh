@@ -104,8 +104,6 @@ do
 
 done
 
-# script is broken?  override test for now
-TEST=0
 
 # compile C++ source files and place into OBJ
 g++ -c -I $SRC/common/ -o $OBJ/edgeDetection.o $SRC/algorithm/edgeDetection.cpp -std=c++0x $COMPILE_OPTIONS
@@ -122,7 +120,6 @@ then
     pasm -V3 -b $SRC/bitBang/bitBangTesting.p $BIN/bitBang > $OUT/pasmLog.txt
 else
     pasm -V3 -b $SRC/bitBang/bitBang.p $BIN/bitBang > $OUT/pasmLog.txt
-    echo "for real"
 fi
 
 # link object files and place into BIN

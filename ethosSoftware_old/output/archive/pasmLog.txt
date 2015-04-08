@@ -1,0 +1,7 @@
+
+
+PRU Assembler Version 0.86
+Copyright (C) 2005-2013 by Texas Instruments Inc.
+
+Fatal Error: Can't open source file 'SRC/bitBangTesting/bitBang.p'
+

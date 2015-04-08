@@ -33,18 +33,20 @@
 //outer loop counter        r16
 
 MAIN:
-        MOV         r16, 0                  // initialize outer loop counter
-        MOV         r6, 4                   // intialize r6 to second register
         MOV         r14, 0                  // initialize line counter
         MOV         r21, 0                  // initialize address to 0x00000000
         WBC         FRAME_VALID             // wait until FRAME_VALID is clear
         WBS         FRAME_VALID             // wait until FRAME_VALID is set (rising edge)
 
 REG_LOOP:
+        MOV         r6, 4
+        MOV         r16, 0
 
 ROW_LOOP:
+        WBC         LINE_VALID
+        WBS         LINE_VALID              // wait until LINE_VALID is set
 
-LOOP    COL_LOOP, NUMCOLS                   // hardware assisted loop (LINE)  
+LOOP    COL_LOOP, NUMCOLS               // hardware assisted loop (LINE)  
         // wait until luma byte  is valid
         WBS         PCLK                    // wait until clock is high
         WBC         PCLK                    // wait until clock is low (falling edge)
@@ -63,13 +65,9 @@ COL_LOOP:
 
         // branch back to ROW_LOOP
         ADD         r16, r16, 1
-        WBC         LINE_VALID
-        WBS         LINE_VALID              // wait until LINE_VALID is set
         QBNE        ROW_LOOP, r16, NUMREGS
 
         // branch back to REG_LOOP if not finished
-        MOV         r6, 4                   // intialize r6 to second register
-        MOV         r16, 0                  // initialize outer loop counter
         QBA         REG_LOOP
 
 // ***************************************
