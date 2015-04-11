@@ -65,7 +65,7 @@ int doBitBang(int frameData[NUMROWS][NUMCOLS])
 
     // Flush the values in the PRU data memory locations
     int i;
-    for(i = 0; i< 12*62; i++){
+    for(i = 0; i< 12*162; i++){
       pruDataMem_int[i] = 0x00000000;
     }
 

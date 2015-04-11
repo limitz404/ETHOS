@@ -81,7 +81,7 @@ vector<vector<int> > topEdges(int image[][NUMCOLS], float threshold, int searchR
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(j);
-                
+                image[j][i] = 0;                
                 if (j > searchRange){
                     startLoc = j - searchRange;
                 }
@@ -137,7 +137,7 @@ vector<vector<int> > bottomEdges(int image[][NUMCOLS], float threshold, int sear
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(NUM_ROWS - j - 1);
-                
+                image[NUM_ROWS-j-1][i] = 0; 
                 if (j > searchRange){
                     startLoc = j - searchRange;
                 }
@@ -195,7 +195,7 @@ vector<vector<int> > leftEdges(int image[][NUMCOLS], float threshold, int search
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(i);
                 edges[1].push_back(j);
-                
+                image[j][i] = 0;
                 if (i > searchRange){
                     startLoc = i - searchRange;
                 }
@@ -251,7 +251,7 @@ vector<vector<int> > rightEdges(int image[][NUMCOLS], float threshold, int searc
             if (intensity >= threshold && intensity2 >= threshold){
                 edges[0].push_back(NUM_COLS - i -1);
                 edges[1].push_back(j);
-                
+                image[j][NUM_COLS-i-1] = 0;
                 if (i > searchRange){
                     startLoc = i - searchRange;
                 }

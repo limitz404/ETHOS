@@ -12,6 +12,7 @@
 *****************************************************************************/
 
 #include <iostream>
+#include <stdio.h>
 #include <time.h>
 #include "attitudeDetermination.h"
 #include "dataStructures.h"
@@ -29,8 +30,8 @@ extern "C" {
 #define NUMROWS 128
 #define NUMCOLS 162
 
-#define LOG_TIME 60*200
-#define DATA_RATE 7
+#define LOG_TIME 60*1
+#define DATA_RATE 1
 
 
 /*****************************************************************************
@@ -43,26 +44,53 @@ using namespace std;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-/*
-int attitude parseLog(struct attitude *logAtt)
+/* parse log to return latest values */
+int parseLog(struct attitude *logAtt)
 {
 
     FILE * oldLogPtr;
-    oldLogPtr = fopen( "/root/ethosSoftware/output/logFile.txt", "r" );
+    oldLogPtr = fopen( "/root/ethosSoftware/output/logFile.txt" , "r" );
     if( oldLogPtr == NULL ){
         return(-1);
     }
 
-    
+    printf("Starting to parse 'logFile.txt'...\n");
 
+    int valid = 0x01;
+    unsigned int num, prevNum = 0;
+    float roll, pitch;
+
+    do {
+        valid &= fscanf( oldLogPtr , "%u" , &num );
+        valid &= fscanf( oldLogPtr , "%f" , &roll );
+        valid &= fscanf( oldLogPtr , "%f" , &pitch );
+        if( num > prevNum ){
+            prevNum = num;
+            (*logAtt).roll = roll;
+            (*logAtt).pitch = pitch;
+        }
+    } while ( valid );
+
+
+    return(0);
 }
-*/
+
 
 
 int main( int argc, char *argv[] )
 {
 
     int single = 0, save = 0;
+
+    /* parse old log file
+    attitude oldVals;
+    int ret = parseLog( &oldVals );
+    if( ret ){
+        printf("Unable to read archived 'logFile.txt'\n");
+    } else {
+        printf("Most recent values:\t%f\t%f\n", oldVals.roll, oldVals.pitch);
+    }
+    */
 
     /* chech for single frame mode */
     if( argc > 2){
@@ -84,17 +112,18 @@ int main( int argc, char *argv[] )
     }
 
 
-    float floatBuffer[2];
+    //float floatBuffer[2];
 
+    /* declare variables outside of loop */
     FILE * filePtr;
-
-    /* main while loop */
+    attitude finalAtt;
     unsigned int loopVar = 0;
     unsigned int lineCounter = 0;
     clock_t refTime = clock();
 
-    while( loopVar < 3*60*7 ){
-    //while( loopVar < 100 ){
+
+    /* main do-while loop */
+    do {
 
         //
         /* get current image */
@@ -102,7 +131,7 @@ int main( int argc, char *argv[] )
 
         //
         /* calculate displacement */
-        attitude finalAtt = determineAttitude(image);
+        //finalAtt = determineAttitude(image);
 
         /* flag bad data (outside limits or changed too much) */
         /* check CAN for requests */
@@ -114,14 +143,14 @@ int main( int argc, char *argv[] )
 
         //
         /* write data to file */
-        floatBuffer[0] = finalAtt.roll;
-        floatBuffer[1] = finalAtt.pitch;
+        //floatBuffer[0] = finalAtt.roll;
+        //floatBuffer[1] = finalAtt.pitch;
         //fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), logPtr );
 
-        //printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+        printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
 
-        /* cycle back to beginning of file every 200 minutes */
-        if( ~single && ( lineCounter/DATA_RATE > LOG_TIME) ){
+        /* cycle back to beginning of file every LOG_TIME seconds */
+        if( !single && (lineCounter/DATA_RATE > LOG_TIME) ){
             lineCounter = 0;
             rewind(logPtr);
             clock_t endTime = clock();
@@ -150,19 +179,26 @@ int main( int argc, char *argv[] )
             fclose(filePtr);
         }
 
-        /* save image and break if single mode */
-        if( single == 1 ){
-            break;
-        }
-
         loopVar++;
         lineCounter++;
 
-    }
+        /* break if single mode */
+        //if( single == 1 ){
+        //    break;
+        //}
 
+    } while ( !single && (loopVar < 3*LOG_TIME) );
+
+    /* close logFile.txt */
     fclose(logPtr);
+
+    /* final iteration/calculation */
+    printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+
+    /* show total calculation rate (for DATA_RATE calculations) */
     clock_t endTime = clock();
     printf("%u frames processed in %f seconds\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC);
+
     return 0;
 
 }

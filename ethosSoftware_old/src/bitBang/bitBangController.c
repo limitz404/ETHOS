@@ -57,7 +57,7 @@ int doBitBang(int frameData[NUMROWS][NUMCOLS])
     }
 
     /* Get the interrupt initialized */
-    prussdrv_pruintc_init(&pruss_intc_initdata);
+    //prussdrv_pruintc_init(&pruss_intc_initdata);
 
     /* Initialize the data memory */
     prussdrv_map_prumem (PRUSS0_PRU1_DATARAM, &pruDataMem);
@@ -65,7 +65,7 @@ int doBitBang(int frameData[NUMROWS][NUMCOLS])
 
     // Flush the values in the PRU data memory locations
     int i;
-    for(i = 0; i<2048; i++){
+    for(i = 0; i< 12*62; i++){
       pruDataMem_int[i] = 0x00000000;
     }
 
@@ -74,8 +74,8 @@ int doBitBang(int frameData[NUMROWS][NUMCOLS])
 
     unsigned int ack;
     int line = 0;
-    int regblock;
-    int regmax;
+    int regBlock;
+    int regMax;
     int reg;
 
     while ( line < numRows ){
@@ -83,13 +83,17 @@ int doBitBang(int frameData[NUMROWS][NUMCOLS])
             ack = pruDataMem_int[0];
             pruDataMem_int[0] = 0;
             line = ack & 0xFF;
-            regblock = ack>>8;
-            regmax = (regblock+1)*numCols+1;
+            regBlock = ack>>8;
+            regMax = (regBlock+1)*numCols+1;
             i = 0;
-            for (reg = regblock*numCols+1; reg < regmax; reg++){
-                frameData[line][i++] = pruDataMem_int[reg];
+            for (reg = regBlock*numCols+1; reg < regMax; reg++){
+                frameData[line-1][i++] = pruDataMem_int[reg] & 0xff;
             }
         }
+    }
+
+    for( line = 0; line < numRows; line++ ){
+        frameData[line][numCols-1] = frameData[line][numCols-2];
     }
 
     /* Disable PRU and close memory mapping*/

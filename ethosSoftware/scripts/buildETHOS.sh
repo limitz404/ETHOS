@@ -104,9 +104,6 @@ do
 
 done
 
-# script is broken?  override test for now
-TEST=0
-
 # compile C++ source files and place into OBJ
 g++ -c -I $SRC/common/ -o $OBJ/edgeDetection.o $SRC/algorithm/edgeDetection.cpp -std=c++0x $COMPILE_OPTIONS
 g++ -c -I $SRC/common/ -o $OBJ/attitudeDetermination.o $SRC/algorithm/attitudeDetermination.cpp -std=c++0x $COMPILE_OPTIONS
@@ -117,12 +114,13 @@ g++ -c -I $SRC/bitBang/ -I $SRC/common/ -I $SRC/algorithm/ -o $OBJ/main.o $SRC/c
 gcc -c -I $SRC/common/ -I $INC -L $LIB -o $OBJ/bitBangController.o $SRC/bitBang/bitBangController.c -lpthread -lprussdrv $COMPILE_OPTIONS
 
 # assemble PRU code and place into OBJ
-if [ $TEST -eq 1 ]
+if [[ $TEST == 1 ]]
 then
     pasm -V3 -b $SRC/bitBang/bitBangTesting.p $BIN/bitBang > $OUT/pasmLog.txt
+    echo "test version"
 else
     pasm -V3 -b $SRC/bitBang/bitBang.p $BIN/bitBang > $OUT/pasmLog.txt
-    echo "for real"
+    echo "camera version"
 fi
 
 # link object files and place into BIN

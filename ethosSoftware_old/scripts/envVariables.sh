@@ -9,9 +9,9 @@
 #
 ##########################################################################################
 
-export THRESHOLDFACTOR=0.25
+export THRESHOLDFACTOR=1
 export BUFFER=5
-export ALTITUDE=250
+export ALTITUDE=750
 export PIXELPITCH=0.0000469
 export SEARCHRANGE=10
 export FLENGTH=0.0075
