@@ -30,8 +30,8 @@ extern "C" {
 #define NUMROWS 128
 #define NUMCOLS 162
 
-#define LOG_TIME 60*1
-#define DATA_RATE 1
+#define LOG_TIME 60*1    // FINAL PRODUCT SHOULD BE SET TO 60*200
+#define DATA_RATE 7      // CURRENTLY ABOUT 7.5 HZ
 
 
 /*****************************************************************************
@@ -44,43 +44,9 @@ using namespace std;
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-/* parse log to return latest values */
-int parseLog(struct attitude *logAtt)
-{
-
-    FILE * oldLogPtr;
-    oldLogPtr = fopen( "/root/ethosSoftware/output/logFile.txt" , "r" );
-    if( oldLogPtr == NULL ){
-        return(-1);
-    }
-
-    printf("Starting to parse 'logFile.txt'...\n");
-
-    int valid = 0x01;
-    unsigned int num, prevNum = 0;
-    float roll, pitch;
-
-    do {
-        valid &= fscanf( oldLogPtr , "%u" , &num );
-        valid &= fscanf( oldLogPtr , "%f" , &roll );
-        valid &= fscanf( oldLogPtr , "%f" , &pitch );
-        if( num > prevNum ){
-            prevNum = num;
-            (*logAtt).roll = roll;
-            (*logAtt).pitch = pitch;
-        }
-    } while ( valid );
-
-
-    return(0);
-}
-
-
 
 int main( int argc, char *argv[] )
 {
-
-    int single = 0, save = 0;
 
     /* parse old log file
     attitude oldVals;
@@ -92,7 +58,8 @@ int main( int argc, char *argv[] )
     }
     */
 
-    /* chech for single frame mode */
+    /* chech for save & single-frame mode */
+    int single=0 , save=0;
     if( argc > 2){
         save = 1;
         single = 1;
@@ -111,55 +78,50 @@ int main( int argc, char *argv[] )
         return(-1);
     }
 
-
-    //float floatBuffer[2];
-
     /* declare variables outside of loop */
     FILE * filePtr;
     attitude finalAtt;
-    unsigned int loopVar = 0;
-    unsigned int lineCounter = 0;
+    unsigned int loopVar=0, lineCounter=0;
     clock_t refTime = clock();
 
+    /* load PRU code */
+    initializePRU ();
 
     /* main do-while loop */
     do {
 
-        //
         /* get current image */
-        doBitBang(image);
+        getImage(image);
 
-        //
+
         /* calculate displacement */
-        //finalAtt = determineAttitude(image);
+        finalAtt = determineAttitude(image);
 
         /* flag bad data (outside limits or changed too much) */
-        /* check CAN for requests */
-        /* send displacement if requested */
 
-        //
+
         /* get current health telemetry */
-        /* send health if requested */
 
-        //
-        /* write data to file */
-        //floatBuffer[0] = finalAtt.roll;
-        //floatBuffer[1] = finalAtt.pitch;
-        //fwrite( floatBuffer, sizeof(char), sizeof(floatBuffer), logPtr );
 
+        /* check CAN for requests */
+
+
+        /* display current line for testing purposes */
         printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+
 
         /* cycle back to beginning of file every LOG_TIME seconds */
         if( !single && (lineCounter/DATA_RATE > LOG_TIME) ){
             lineCounter = 0;
             rewind(logPtr);
             clock_t endTime = clock();
-            printf("Looping back to beginning of log file (%f minutes)\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC/60);
+            printf("Looping back to beginning of log file (%f minutes)\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC/60);    // REMOVE WHEN DONE TESTING
         }
 
         /* write data to file */
         fprintf(logPtr, "%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
 
+        /* save image to text file if requested */
         if( save == 1 ){
             char stringBuffer[50];
             sprintf(stringBuffer, "/root/ethosSoftware/output/image%u.txt", loopVar);
@@ -170,8 +132,8 @@ int main( int argc, char *argv[] )
             }
             int col;
             int line;
-            for (line = 0; line < NUMROWS; line++){
-                for (col = 0; col < NUMCOLS; col++){
+            for( line = 0; line < NUMROWS; line++ ){
+                for (col = 0; col < NUMCOLS; col++ ){
                     fprintf(filePtr, "%i\t", (int) image[line][col]);
                 }
                 fprintf(filePtr,"\n");
@@ -179,15 +141,11 @@ int main( int argc, char *argv[] )
             fclose(filePtr);
         }
 
+        /* increment loop variables */
         loopVar++;
         lineCounter++;
 
-        /* break if single mode */
-        //if( single == 1 ){
-        //    break;
-        //}
-
-    } while ( !single && (loopVar < 3*LOG_TIME) );
+    } while ( !single && (loopVar < 3*LOG_TIME) );    // FINAL PRODUCT WILL HAVE INFINITE WHILE LOOP
 
     /* close logFile.txt */
     fclose(logPtr);
@@ -199,6 +157,50 @@ int main( int argc, char *argv[] )
     clock_t endTime = clock();
     printf("%u frames processed in %f seconds\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC);
 
-    return 0;
+    /* disable PRU */
+    closePRU ();
 
+    return(0);
+
+}
+
+
+
+
+
+
+/* parse log to return latest values */
+int parseLog(struct attitude *logAtt)
+{
+
+    /* re-open log file if it exists */
+    FILE * oldLogPtr;
+    oldLogPtr = fopen( "/root/ethosSoftware/output/logFile.txt" , "r" );
+    if( oldLogPtr == NULL ){
+        return(-1);
+    }
+
+    /* verify parsing is beginning */
+    printf("Starting to parse 'logFile.txt'...\n");
+
+    /* declare variables outside loop */
+    int valid = 0x01;
+    int num , prevNum=-1;
+    float roll, pitch;
+
+    /* loop through entire file */
+    do {
+        valid &= fscanf( oldLogPtr , "%u" , &num );
+        valid &= fscanf( oldLogPtr , "%f" , &roll );
+        valid &= fscanf( oldLogPtr , "%f" , &pitch );
+        if( num > prevNum ){
+            prevNum = num;
+            (*logAtt).roll = roll;
+            (*logAtt).pitch = pitch;
+            printf( "Lines read...\t%i" , num );
+        }
+    } while ( valid );
+
+
+    return(0);
 }

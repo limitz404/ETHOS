@@ -7,6 +7,7 @@ using namespace std;
 const int NUM_ROWS = 128;
 const int NUM_COLS = 162;
 const int NUM_REGS = 12;
+int parseLog(struct attitude *logAtt);
 
 // ALGORITHM GLOBALS
 float THRESHOLD_FACTOR = atof(getenv("THRESHOLDFACTOR"));

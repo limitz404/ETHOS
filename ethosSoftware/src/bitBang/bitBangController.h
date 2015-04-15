@@ -11,6 +11,8 @@
 
 #define NUMCOLS 162
 
-int doBitBang(int (*)[NUMCOLS]);
+int initializePRU( void );
+int getImage( int (*)[NUMCOLS] );
+void closePRU( void );
 
 #endif

@@ -34,42 +34,33 @@
 int numCols = 162;
 int numRows = 128;
 
+static void *pruDataMem;
+static volatile unsigned int *pruDataMem_int;
+
 /*****************************************************************************
 * Global Function Definitions                                                *
 *****************************************************************************/
 
-
-
-int initializePRU( void )
+int doBitBang(int frameData[NUMROWS][NUMCOLS])
 {
+    unsigned int ret;
+    tpruss_intc_initdata pruss_intc_initdata = PRUSS_INTC_INITDATA;
 
     /* Initialize the PRU */
     prussdrv_init ();
+    /* Open PRU Interrupt */
+    ret = prussdrv_open(PRU_EVTOUT_1);
 
-    /* Open PRU Interrupt */             //DO YOU REALLY NEED THIS?
-    int ret = prussdrv_open(PRU_EVTOUT_1);
-    if( ret ){
+    if (ret){
         printf("prussdrv_open open failed\n");
         return (ret);
     }
 
-    /* Execute PRU code */
-    prussdrv_exec_program ( PRU_NUM, "/root/ethosSoftware/bin/bitBang.bin" );
-
-    return(0);
-}
-
-
-
-
-int getImage( int frameData[][NUMCOLS] )
-{
-
-    static void *pruDataMem;
-    static volatile unsigned int *pruDataMem_int;
+    /* Get the interrupt initialized */
+    //prussdrv_pruintc_init(&pruss_intc_initdata);
 
     /* Initialize the data memory */
-    prussdrv_map_prumem( PRUSS0_PRU1_DATARAM , &pruDataMem );
+    prussdrv_map_prumem (PRUSS0_PRU1_DATARAM, &pruDataMem);
     pruDataMem_int = (unsigned int*) pruDataMem;
 
     // Flush the values in the PRU data memory locations
@@ -78,15 +69,17 @@ int getImage( int frameData[][NUMCOLS] )
       pruDataMem_int[i] = 0x00000000;
     }
 
-    unsigned int ack, line=0;
-    int regBlock, regMax, reg;
+    /* Execute PRU code */
+    prussdrv_exec_program ( PRU_NUM, "/root/ethosSoftware/bin/bitBang.bin" );
 
-    /* write to ack */
-    pruDataMem_int[0] = 0x80000000;
+    unsigned int ack;
+    int line = 0;
+    int regBlock;
+    int regMax;
+    int reg;
 
-    /* bit-bang frame */
-    while( line < numRows ) {
-        if ( pruDataMem_int[0] != 0 ){    // MIGHT NOT BE ENOUGH TIME FOR PRU TO ALWAYS CLEAR ACK
+    while ( line < numRows ){
+        if ( pruDataMem_int[0] != 0 ){
             ack = pruDataMem_int[0];
             pruDataMem_int[0] = 0;
             line = ack & 0xFF;
@@ -99,14 +92,13 @@ int getImage( int frameData[][NUMCOLS] )
         }
     }
 
-    return(0);
-}
+    for( line = 0; line < numRows; line++ ){
+        frameData[line][numCols-1] = frameData[line][numCols-2];
+    }
 
-
-void closePRU( void )
-{
     /* Disable PRU and close memory mapping*/
     prussdrv_pru_disable(PRU_NUM);
     prussdrv_exit();
-    return;
+
+    return(0);
 }
