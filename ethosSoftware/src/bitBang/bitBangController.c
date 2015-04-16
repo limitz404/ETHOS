@@ -86,7 +86,7 @@ int getImage( int frameData[][NUMCOLS] )
 
     /* bit-bang frame */
     while( line < numRows ) {
-        if ( pruDataMem_int[0] != 0 ){    // MIGHT NOT BE ENOUGH TIME FOR PRU TO ALWAYS CLEAR ACK
+        if ( (pruDataMem_int[0] && 0xff) != 0 ){    // MIGHT NOT BE ENOUGH TIME FOR PRU TO ALWAYS CLEAR ACK
             ack = pruDataMem_int[0];
             pruDataMem_int[0] = 0;
             line = ack & 0xFF;

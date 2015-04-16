@@ -1,11 +1,10 @@
-
 /*****************************************************************************
 * AUTHORS: PATRICK KLEIN, TAYLOR DEAN                                        *
 * TEAM: ETHOS                                                                *
-* FILE:                                                   *
-* CREATED: 2015                                                      *
-* PURPOSE:     *
-*                                      *
+* FILE: bitbang.c                                                  *
+* CREATED: 3 MARCH 2015                                                      *
+* PURPOSE: TO LOAD BITBANG ASSEMBLY CODE ONTO PRU 1, START THE CODE, THEN    *
+*          GRAB IMAGE DATA FROM THE PRU DATA RAM.                            *
 *****************************************************************************/
 
 /*****************************************************************************
@@ -14,19 +13,15 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <time.h>
-#include "attitudeDetermination.h"
-#include "dataStructures.h"
-#include "common.h"
 
+#include "readImage.h"
 
 /*****************************************************************************
 * Local Macro Declarations                                                   *
 *****************************************************************************/
 
-extern "C" {
-    #include "bitBangController.h"
-}
+#define NUM_ROWS 128
+#define NUM_COLS 162
 
 
 /*****************************************************************************
@@ -40,36 +35,24 @@ using namespace std;
 *****************************************************************************/
 
 
-void canHandler( struct attitude *displacement; float *health ){
 
-    // just use arrays
+int getImage( int image[][NUM_COLS] )
+{
 
-    while( 1 ){
-
-        flag = canDump();
-
-        if( flag & 0b001 ){
-            canSend(attitude);    // SEND ATTITUDE
-        }
-
-        if( flag & 0b010 ){
-            canSend(health);      // SEND HEALTH DATA
-        }
-
-        if( flag & 0b100 ){
-            attitude oldFlag;
-            ret = parseLog(&logAtt);
-            if( !ret ){
-                canSend(logAtt);  // SEND OLD LOG DATA
-            } else {
-                canSend(NULL);    // SEND NULL OR NOTHING
-            }
-        }
-
-        if( !(flag & 0b111) ){
-            return(0);
-        }
-
+    FILE * filePtr;
+    filePtr = fopen( "/root/ethosSoftware/requiredFiles/0r0p.txt" , "rb" );
+    if( filePtr == NULL ){
+        return(-1);
     }
+    int col;
+    int line;
+    for( line = 0; line < NUM_ROWS; line++ ){
+        for( col = 0; col < NUM_COLS; col++ ){
+            fscanf(filePtr, "%i", (int) image[line][col]);
+        }
+    }
+    fclose(filePtr);
+
+    return(0);
 
 }

@@ -17,21 +17,19 @@
 #include "attitudeDetermination.h"
 #include "dataStructures.h"
 #include "common.h"
+#include "readImage.h"
 
 
 /*****************************************************************************
 * Local Macro Declarations                                                   *
 *****************************************************************************/
 
-extern "C" {
-    #include "bitBangController.h"
-}
 
-#define NUMROWS 128
-#define NUMCOLS 162
+#define NUM_ROWS 128
+#define NUM_COLS 162
 
-#define LOG_TIME 60*1    // FINAL PRODUCT SHOULD BE SET TO 60*200
-#define DATA_RATE 7      // CURRENTLY ABOUT 7.5 HZ
+#define LOG_TIME 60*200    // FINAL PRODUCT SHOULD BE SET TO 60*200
+#define DATA_RATE 7.5      // CURRENTLY ABOUT 7.5 HZ
 
 
 /*****************************************************************************
@@ -68,7 +66,7 @@ int main( int argc, char *argv[] )
     }
 
     /* declare image */
-    int image[NUMROWS][NUMCOLS];
+    int image[NUM_ROWS][NUM_COLS];
 
     /* create empty log file file */
     FILE * logPtr;
@@ -83,9 +81,6 @@ int main( int argc, char *argv[] )
     attitude finalAtt;
     unsigned int loopVar=0, lineCounter=0;
     clock_t refTime = clock();
-
-    /* load PRU code */
-    initializePRU ();
 
     /* main do-while loop */
     do {
@@ -103,11 +98,12 @@ int main( int argc, char *argv[] )
         /* get current health telemetry */
 
 
-        /* check CAN for requests */
+        /* check and respond to UART */
+        /* void uartHandler( &finalAtt ,  &health ); */
 
 
         /* display current line for testing purposes */
-        printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+        //printf("%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
 
 
         /* cycle back to beginning of file every LOG_TIME seconds */
@@ -132,8 +128,8 @@ int main( int argc, char *argv[] )
             }
             int col;
             int line;
-            for( line = 0; line < NUMROWS; line++ ){
-                for (col = 0; col < NUMCOLS; col++ ){
+            for( line = 0; line < NUM_ROWS; line++ ){
+                for (col = 0; col < NUM_COLS; col++ ){
                     fprintf(filePtr, "%i\t", (int) image[line][col]);
                 }
                 fprintf(filePtr,"\n");
@@ -145,7 +141,7 @@ int main( int argc, char *argv[] )
         loopVar++;
         lineCounter++;
 
-    } while ( !single && (loopVar < 3*LOG_TIME) );    // FINAL PRODUCT WILL HAVE INFINITE WHILE LOOP
+    } while ( !single && (loopVar < 1.5*LOG_TIME*DATA_RATE) );    // FINAL PRODUCT WILL HAVE INFINITE WHILE LOOP
 
     /* close logFile.txt */
     fclose(logPtr);
@@ -156,9 +152,6 @@ int main( int argc, char *argv[] )
     /* show total calculation rate (for DATA_RATE calculations) */
     clock_t endTime = clock();
     printf("%u frames processed in %f seconds\n", loopVar, (float) (endTime-refTime)/CLOCKS_PER_SEC);
-
-    /* disable PRU */
-    closePRU ();
 
     return(0);
 
