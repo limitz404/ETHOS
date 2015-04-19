@@ -94,10 +94,13 @@ done
 # compile C++ source files and place into OBJ
 g++ -c -I $SRC/common/ -o $OBJ/edgeDetection.o $SRC/algorithm/edgeDetection.cpp -std=c++0x $COMPILE_OPTIONS
 g++ -c -I $SRC/common/ -o $OBJ/attitudeDetermination.o $SRC/algorithm/attitudeDetermination.cpp -std=c++0x $COMPILE_OPTIONS
-g++ -c -I $SRC/common/ -o $OBJ/common.o $SRC/common/common.cpp $COMPILE_OPTIONS
-g++ -c -I $SRC/readImageFile/ -I $SRC/common/ -I $SRC/algorithm/ -o $OBJ/main.o $SRC/common/main.cpp -std=c++0x $COMPILE_OPTIONS
 g++ -c -I $SRC/readImageFile/ -I $INC -L $LIB -o $OBJ/readImage.o $SRC/readImageFile/readImage.cpp $COMPILE_OPTIONS
+
 g++ -c -I $SRC/UART/ -I $SRC/algorithm/ -I $INC -L -I -o $OBJ/uart.o $SRC/UART/uart.cpp $COMPILE_OPTIONS
 
+g++ -c -I $SRC/common/ -o $OBJ/common.o $SRC/common/common.cpp $COMPILE_OPTIONS
+echo "before main compile"
+g++ -c -I $SRC/UART/ -I $SRC/readImageFile/ -I $SRC/common/ -I $SRC/algorithm/ -o $OBJ/main.o $SRC/common/main.cpp -std=c++0x $COMPILE_OPTIONS
+echo "main compiled, about to link"
 # link object files and place into BIN
-g++ -I $INC -L $LIB $OBJ/common.o $OBJ/edgeDetection.o $OBJ/attitudeDetermination.o $OBJ/main.o $OBJ/readImage.o -o $BIN/fakeEthos $LINK_OPTIONS
+g++ -I $INC -L $LIB $OBJ/uart.o $OBJ/common.o $OBJ/edgeDetection.o $OBJ/attitudeDetermination.o $OBJ/main.o $OBJ/readImage.o -o $BIN/fakeEthos $LINK_OPTIONS

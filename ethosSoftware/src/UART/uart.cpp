@@ -13,6 +13,9 @@
 #include "uart.h"
 #include "dataStructures.h"
 
+
+int fd;
+
 /*************************************************
 * Function that starts the uart and opens the port
 * It clears all old port settings and resets the
@@ -64,8 +67,10 @@ int readUart(){
 	/* Read data from the port if there is any */
 	read(fd,&readbuf, sizeof(readbuf));
 	if(status < 0){
-		printf("read failed");
+		printf("read failed\n");
 	}
+
+        printf("Message received: %d\n",readbuf[0]);
 
 	return readbuf[0];
 
@@ -81,7 +86,7 @@ void writeUart(float dataArray[]){
 	/* write data to the uart port */
 	status = write(fd,&dataArray, sizeof(dataArray));
 	if(status < 0){
-		printf("write failed");
+		printf("write failed\n");
 	}
 }
 
@@ -100,9 +105,11 @@ void uartHandler( struct attitude *att , float *health )
             float attOut[] = { (*att).roll , (*att).pitch };
             writeUart(attOut);    // SEND ATTITUDE
             flag &= 0b110;
+            printf("Sending attitude over UART\n");
         }
 
         flag &= 0b001;
+
         /*
         if( flag & 0b010 ){
             canSend(health);      // SEND HEALTH DATA

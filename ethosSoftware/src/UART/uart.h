@@ -4,7 +4,6 @@
 #define UART_H
 
 /* Global Constants */
-int fd; // Used for keeping track of the open port
 
 /* Function Delarations */
 
@@ -28,8 +27,6 @@ int readUart();
 void writeUart(char dataArray[]);
 
 
-
-
-void uartHandler( struct attitude *displacement ,  float *health );
+void uartHandler( struct attitude *att ,  float *health );
 
 #endif

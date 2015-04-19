@@ -18,6 +18,7 @@
 #include "dataStructures.h"
 #include "common.h"
 #include "readImage.h"
+#include "uart.h"
 
 
 /*****************************************************************************
@@ -76,12 +77,22 @@ int main( int argc, char *argv[] )
         return(-1);
     }
 
+    /* initialize UART
+    printf("intializing UART\n");
+    initUart ();
+    */
+
     /* declare variables outside of loop */
     FILE * filePtr;
+    FILE * tempPtr;
     attitude finalAtt;
+    float health[2];
+    float temp;
     unsigned int loopVar=0, lineCounter=0;
     clock_t refTime = clock();
 
+
+    printf("running mainloop\n");
     /* main do-while loop */
     do {
 
@@ -96,10 +107,19 @@ int main( int argc, char *argv[] )
 
 
         /* get current health telemetry */
+        /* health = getHealth(); */
+        health[0] = 0xff00ff00;
+        tempPtr = fopen( "/sys/class/hwmon/hwmon0/device/temp1_input" , "r");
+        fscanf( tempPtr , "%f" , &temp );
+        fclose( tempPtr );
+        health[1] = temp*0.001;
+        //printf("%f\n" , temp);
 
 
-        /* check and respond to UART */
-        /* void uartHandler( &finalAtt ,  &health ); */
+        /* check and respond to UART
+        printf("checking UART\n");
+        uartHandler( &finalAtt ,  &health );
+        */
 
 
         /* display current line for testing purposes */
@@ -115,7 +135,7 @@ int main( int argc, char *argv[] )
         }
 
         /* write data to file */
-        fprintf(logPtr, "%u\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch);
+        fprintf(logPtr, "%u\t%f\t%f\t%f\t%f\n", loopVar, finalAtt.roll, finalAtt.pitch, health[0], health[1]);
 
         /* save image to text file if requested */
         if( save == 1 ){
@@ -142,6 +162,7 @@ int main( int argc, char *argv[] )
         lineCounter++;
 
     } while ( !single && (loopVar < 1.5*LOG_TIME*DATA_RATE) );    // FINAL PRODUCT WILL HAVE INFINITE WHILE LOOP
+    //} while ( !single );
 
     /* close logFile.txt */
     fclose(logPtr);
